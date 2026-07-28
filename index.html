@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>복이 - 손주같은 복지 도우미</title>
+  <title>복이 - 맞춤형 복지 도우미</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -82,36 +82,47 @@
           </button>
           <button onClick={() => setActiveTab('browse')} className={`flex flex-col items-center gap-1 ${activeTab === 'browse' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
             <i data-lucide="search" className="w-6 h-6"></i>
-            <span className="text-lg hand-font font-bold">찾아보기</span>
+            <span className="text-lg hand-font font-bold">맞춤 혜택</span>
           </button>
           <button onClick={() => setActiveTab('chat')} className={`flex flex-col items-center gap-1 ${activeTab === 'chat' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
             <i data-lucide="message-square" className="w-6 h-6"></i>
-            <span className="text-lg hand-font font-bold">대화하기</span>
+            <span className="text-lg hand-font font-bold">AI 상담</span>
           </button>
         </div>
       );
     };
 
-    // 스플래시 화면
-    const SplashScreen = ({ onStart, onSignUp }) => {
+    // 스플래시 & 로그인/회원가입 화면
+    const SplashScreen = ({ onLoginSuccess, onSignUpSuccess }) => {
+      const [showLogin, setShowLogin] = useState(false);
       const [showSignUp, setShowSignUp] = useState(false);
+
+      const [loginName, setLoginName] = useState('');
       const [signUpData, setSignUpData] = useState({
         name: '',
-        age: '',
+        age: '72',
         gender: '여성',
         region: '서울특별시',
-        disabled: false
       });
 
-      useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [showSignUp]);
+      useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [showLogin, showSignUp]);
 
-      const handleSignUpSubmit = (e) => {
+      const handleLoginSubmit = (e) => {
         e.preventDefault();
-        if (!signUpData.name) {
+        if (!loginName.trim()) {
           alert('성함을 입력해주세요!');
           return;
         }
-        onSignUp(signUpData);
+        onLoginSuccess(loginName);
+      };
+
+      const handleSignUpSubmit = (e) => {
+        e.preventDefault();
+        if (!signUpData.name.trim()) {
+          alert('성함을 입력해주세요!');
+          return;
+        }
+        onSignUpSuccess(signUpData);
       };
 
       return (
@@ -123,25 +134,54 @@
               </div>
             </div>
             <h2 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-1">안녕하세요!</h2>
-            <h1 className="text-3xl font-bold text-[#3B5E3C] hand-font mb-4">손주같은 복이가<br/>도와드릴게요</h1>
-            <p className="text-xl text-gray-600 hand-font">어려운 복지 혜택 신청,<br/>복이와 함께라면 쉽고 즐거워요.</p>
+            <h1 className="text-3xl font-bold text-[#3B5E3C] hand-font mb-4">어르신을 위한 맞춤형<br/>복지 도우미 '복이'입니다</h1>
+            <p className="text-xl text-gray-600 hand-font">어려운 복지 정보와 신청 과정,<br/>어르신 조건에 맞춰 쉽고 정확하게 안내해요.</p>
           </div>
 
           <div className="w-full space-y-3 mb-8">
-            <button onClick={onStart} className="w-full py-4 bg-[#3B5E3C] text-white rounded-3xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md hover:bg-[#2e4a2f]">
-              시작하기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
+            <button onClick={() => setShowLogin(true)} className="w-full py-4 bg-[#3B5E3C] text-white rounded-3xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md hover:bg-[#2e4a2f]">
+              <i data-lucide="log-in" className="w-6 h-6"></i> 로그인하기
             </button>
             <button onClick={() => setShowSignUp(true)} className="w-full py-3.5 bg-[#8C6D3B] text-white rounded-3xl text-xl font-bold hand-font flex items-center justify-center gap-2 shadow-sm">
-              <i data-lucide="user-plus" className="w-5 h-5"></i> 회원가입 하기
+              <i data-lucide="user-plus" className="w-5 h-5"></i> 맞춤 회원가입
             </button>
           </div>
+
+          {/* 로그인 모달 */}
+          {showLogin && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-[#FAF8F5] w-full max-w-[390px] rounded-3xl p-6 text-left space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-3xl font-bold text-[#2A3B2C] hand-font">복이 로그인</h3>
+                  <button onClick={() => setShowLogin(false)} className="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" className="w-7 h-7"></i>
+                  </button>
+                </div>
+                <form onSubmit={handleLoginSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성함을 입력해주세요</label>
+                    <input 
+                      type="text" 
+                      value={loginName} 
+                      onChange={(e) => setLoginName(e.target.value)} 
+                      placeholder="예: 홍길동"
+                      className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                    />
+                  </div>
+                  <button type="submit" className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-2">
+                    확인 및 시작하기
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
 
           {/* 회원가입 모달 */}
           {showSignUp && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
               <div className="bg-[#FAF8F5] w-full max-w-[390px] rounded-3xl p-6 text-left space-y-4 max-h-[85vh] overflow-y-auto">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-3xl font-bold text-[#2A3B2C] hand-font">복이 회원가입</h3>
+                  <h3 className="text-3xl font-bold text-[#2A3B2C] hand-font">맞춤 정보 등록</h3>
                   <button onClick={() => setShowSignUp(false)} className="text-gray-400 hover:text-gray-600">
                     <i data-lucide="x" className="w-7 h-7"></i>
                   </button>
@@ -149,12 +189,12 @@
 
                 <form onSubmit={handleSignUpSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성함이 어떻게 되시나요?</label>
+                    <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성함</label>
                     <input 
                       type="text" 
                       value={signUpData.name} 
                       onChange={(e) => setSignUpData({ ...signUpData, name: e.target.value })} 
-                      placeholder="이름 입력 (예: 홍길동)"
+                      placeholder="성함을 입력하세요"
                       className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
                     />
                   </div>
@@ -177,7 +217,7 @@
                     </div>
 
                     <div className="flex-1">
-                      <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">나이</label>
+                      <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">연령(만)</label>
                       <input 
                         type="number" 
                         value={signUpData.age} 
@@ -189,7 +229,7 @@
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">어디에 살고 계신가요?</label>
+                    <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">거주 지역</label>
                     <select 
                       value={signUpData.region} 
                       onChange={(e) => setSignUpData({ ...signUpData, region: e.target.value })}
@@ -207,7 +247,7 @@
                   </div>
 
                   <button type="submit" className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-4">
-                    가입하고 맞춤 안내받기
+                    맞춤 정보로 시작하기
                   </button>
                 </form>
               </div>
@@ -230,23 +270,22 @@
 
       return (
         <div className="flex-1 flex flex-col pb-24">
-          <Header title="프로필" />
+          <Header title="프로필 설정" />
           <div className="p-5 space-y-5 overflow-y-auto">
             <div className="flex flex-col items-center">
               <BokiAvatar className="w-24 h-24 mb-3" />
               <div className="bg-[#EAE6DF] p-4 rounded-2xl border border-[#D5CFC0] text-center w-full">
-                <p className="text-xl text-[#2A3B2C] hand-font">"안녕하세요! 저는 복이라고 해요. 어르신께 꼭 맞는 소식을 찾아드릴게요. 정보를 알려주시겠어요?"</p>
+                <p className="text-xl text-[#2A3B2C] hand-font">"안녕하세요, {userProfile.name} 어르신! 정확한 맞춤 혜택 추천을 위해 프로필 정보를 확인해 주세요."</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성함이 어떻게 되시나요?</label>
+                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성함</label>
                 <input 
                   type="text" 
                   value={userProfile.name} 
                   onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })} 
-                  placeholder="이름을 입력해주세요"
                   className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
                 />
               </div>
@@ -267,19 +306,18 @@
                 </div>
 
                 <div className="flex-1">
-                  <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">나이</label>
+                  <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">연령(만)</label>
                   <input 
                     type="number" 
                     value={userProfile.age} 
                     onChange={(e) => setUserProfile({ ...userProfile, age: e.target.value })} 
-                    placeholder="예: 72"
                     className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">어디에 살고 계신가요?</label>
+                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">거주 지역</label>
                 <select 
                   value={userProfile.region} 
                   onChange={(e) => setUserProfile({ ...userProfile, region: e.target.value })}
@@ -297,14 +335,14 @@
 
               <div className="bg-[#EBF3ED] p-4 rounded-2xl flex items-center justify-between border border-[#C6DCCE]">
                 <div>
-                  <p className="text-xl font-bold text-[#2A3B2C] hand-font">음성 지원 모드</p>
-                  <p className="text-base text-gray-600 hand-font">복이가 글씨를 읽어드려요</p>
+                  <p className="text-xl font-bold text-[#2A3B2C] hand-font">음성 읽어주기 기능</p>
+                  <p className="text-base text-gray-600 hand-font">화면의 주요 안내 문구를 음성으로 들려드려요</p>
                 </div>
                 <button 
                   onClick={() => {
                     const nextVal = !userProfile.voiceSupport;
                     setUserProfile({ ...userProfile, voiceSupport: nextVal });
-                    if (nextVal) speak("음성 지원 모드가 켜졌습니다.");
+                    if (nextVal) speak("음성 읽어주기 기능이 활성화되었습니다.");
                   }}
                   className={`w-14 h-8 rounded-full p-1 transition-colors ${userProfile.voiceSupport ? 'bg-[#3B5E3C]' : 'bg-gray-300'}`}
                 >
@@ -312,8 +350,8 @@
                 </button>
               </div>
 
-              <button onClick={() => { speak("프로필을 저장하고 맞춤 혜택을 추천받습니다."); onSave(); }} className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-4 flex items-center justify-center gap-2">
-                저장하고 추천 받기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
+              <button onClick={() => { speak("프로필이 저장되었습니다. 맞춤 혜택을 확인해보세요."); onSave(); }} className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-4 flex items-center justify-center gap-2">
+                저장하고 맞춤 혜택 보기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
               </button>
             </div>
           </div>
@@ -321,12 +359,12 @@
       );
     };
 
-    // 찾아보기 화면
+    // 맞춤 혜택 찾아보기 화면
     const BrowseScreen = ({ userProfile, onOpenChat }) => {
-      const [policies, setPolicies] = useState([
-        { id: 1, tag: "마감 임박", title: "기초연금 정기 지급 안내", shortDesc: "매월 최대 33.4만원의 생활비를 지원받으실 수 있습니다.", org: "보건복지부 및 주민센터", eligibility: "만 65세 이상 어르신 중 소득인정액 이하", period: "12월 31일까지" },
-        { id: 2, tag: "신규 혜택", title: "노인 무료 인공관절 수술비 지원", shortDesc: "수술비 본인 부담금 중 최대 120만원까지 지원해요.", org: "거주지 인근 보건소", eligibility: "만 60세 이상 저소득층 어르신", period: "예산 소진 시까지" },
-        { id: 3, tag: "인기", title: "어르신 일자리 사업 참여", shortDesc: "가까운 복지관에서 가벼운 일거리를 찾아보세요.", org: "시/군/구 노인복지관", eligibility: "만 60~65세 이상 구직 희망 어르신", period: "상시 모집" }
+      const [policies] = useState([
+        { id: 1, tag: "맞춤 추천 1순위", title: "기초연금 정기 지급 안내", shortDesc: "어르신의 안정적인 노후생활을 위해 매월 최대 33.4만원 지원", org: "보건복지부 및 주민센터", eligibility: "만 65세 이상 어르신 중 소득인정액 기준 하위 70%", period: "연중 상시 접수" },
+        { id: 2, tag: "건강 지원", title: "노인 보행보조기 구입비 지원", shortDesc: "거통이 불편하신 어르신을 위한 보행 보조기구 구매비 지원", org: "관할 시/군/구청 복지과", eligibility: "만 65세 이상 보행 불편 어르신", period: "예산 소진 시까지" },
+        { id: 3, tag: "생활 지원", title: "어르신 맞춤형 일자리 참여", shortDesc: "건강한 사회 참여와 소득 보충을 위한 사회활동 지원", org: "지역 노인복지관 및 시니어클럽", eligibility: "만 60~65세 이상 구직 희망 어르신", period: "상시 모집" }
       ]);
       const [selectedPolicy, setSelectedPolicy] = useState(null);
 
@@ -334,16 +372,16 @@
 
       return (
         <div className="flex-1 flex flex-col pb-24">
-          <Header title="찾아보기" />
+          <Header title="맞춤 혜택" />
           <div className="p-5 space-y-5 overflow-y-auto">
             <div className="bg-[#789975] text-white p-6 rounded-3xl relative overflow-hidden shadow-sm">
-              <span className="bg-white/20 text-white text-sm px-3 py-1 rounded-full hand-font">복이 인공지능 추천</span>
-              <h2 className="text-3xl font-bold hand-font mt-2 mb-1">어르신에게 딱 맞는<br/>혜택을 찾아왔어요!</h2>
-              <p className="text-lg hand-font opacity-90">{userProfile.name} 어르신의 조건에 맞춰 선별한 소식이에요.</p>
+              <span className="bg-white/20 text-white text-sm px-3 py-1 rounded-full hand-font">맞춤 분석 완료</span>
+              <h2 className="text-3xl font-bold hand-font mt-2 mb-1">{userProfile.name} 어르신을 위한<br/>맞춤 복지 정보입니다</h2>
+              <p className="text-lg hand-font opacity-90">{userProfile.region} 거주 기준 조건을 반영하여 선별했습니다.</p>
             </div>
 
             <div>
-              <h3 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-3">맞춤 혜택 리스트</h3>
+              <h3 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-3">추천 복지 서비스</h3>
               <div className="space-y-3">
                 {policies.map((p) => (
                   <div key={p.id} onClick={() => setSelectedPolicy(p)} className="bg-white p-4 rounded-2xl border border-[#EAE6DF] shadow-sm cursor-pointer hover:border-[#3B5E3C] transition-all">
@@ -354,8 +392,8 @@
                     )}
                     <h4 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-1">{p.title}</h4>
                     <p className="text-lg text-gray-600 hand-font mb-2">{p.shortDesc}</p>
-                    <div className="text-base text-[#8C6D3B] hand-font flex items-center gap-1">
-                      <i data-lucide="info" className="w-4 h-4"></i> 자세히 알아보기
+                    <div className="text-base text-[#8C6D3B] hand-font flex items-center gap-1 font-bold">
+                      <i data-lucide="info" className="w-4 h-4"></i> 상세 내용 및 자격 확인
                     </div>
                   </div>
                 ))}
@@ -363,13 +401,14 @@
             </div>
 
             <div className="bg-[#EAE6DF] p-5 rounded-3xl text-center space-y-3">
-              <p className="text-xl font-bold text-[#2A3B2C] hand-font">더 많은 혜택이 궁금하신가요?</p>
+              <p className="text-xl font-bold text-[#2A3B2C] hand-font">원하시는 복지 서비스를 찾지 못하셨나요?</p>
               <button onClick={onOpenChat} className="w-full py-3.5 bg-[#8C6D3B] text-white rounded-2xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md">
-                <i data-lucide="mic" className="w-6 h-6"></i> 복이에게 물어보기
+                <i data-lucide="message-square" className="w-6 h-6"></i> AI 도우미 복이와 상담하기
               </button>
             </div>
           </div>
 
+          {/* 상세 팝업 */}
           {selectedPolicy && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
               <div className="bg-[#FAF8F5] w-full max-w-[390px] rounded-3xl p-6 space-y-4 max-h-[80vh] overflow-y-auto">
@@ -383,11 +422,11 @@
                 <hr className="border-[#EAE6DF]" />
                 <div className="space-y-3 hand-font text-xl">
                   <div><span className="font-bold text-[#3B5E3C]">주관 기관: </span><span>{selectedPolicy.org}</span></div>
-                  <div><span className="font-bold text-[#3B5E3C]">자격 요건: </span><span>{selectedPolicy.eligibility}</span></div>
+                  <div><span className="font-bold text-[#3B5E3C]">지원 대상: </span><span>{selectedPolicy.eligibility}</span></div>
                   <div><span className="font-bold text-[#3B5E3C]">신청 기간: </span><span>{selectedPolicy.period}</span></div>
                 </div>
-                <button onClick={() => { alert('신청 화면으로 연결됩니다.'); setSelectedPolicy(null); }} className="w-full py-3.5 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-4">
-                  바로 신청하기
+                <button onClick={() => { alert('복지 간편 신청 안내 화면으로 연결됩니다.'); setSelectedPolicy(null); }} className="w-full py-3.5 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-4">
+                  간편 신청하기
                 </button>
               </div>
             </div>
@@ -396,12 +435,12 @@
       );
     };
 
-    // 대화하기 화면
+    // AI 대화 상담 화면
     const ChatScreen = ({ userProfile }) => {
       const [messages, setMessages] = useState([
         { 
           sender: 'boki', 
-          text: `안녕하세요 ${userProfile.name} 어르신! 손주 복이에요. "바퀴 달린 보조기구 말해줘" 처럼 편하게 말이나 글로 말씀해주세요!` 
+          text: `안녕하세요, ${userProfile.name} 어르신. 맞춤 복지 도우미 복이입니다.\n"보행기 지원받고 싶어" 또는 "연금 신청 알려줘" 처럼 편하게 음성이나 글로 문의해 주세요.` 
         }
       ]);
       const [input, setInput] = useState('');
@@ -412,11 +451,9 @@
 
       useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [messages, isListening, applicationForm]);
 
-      const scrollToBottom = () => {
+      useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      };
-
-      useEffect(() => { scrollToBottom(); }, [messages, loading]);
+      }, [messages, loading]);
 
       const speakText = (text) => {
         if (userProfile.voiceSupport && 'speechSynthesis' in window) {
@@ -431,7 +468,7 @@
       const startListening = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-          alert("현재 브라우저는 음성 인식을 지원하지 않습니다. 크롬 브라우저를 이용해주세요.");
+          alert("현재 브라우저에서는 음성 인식을 지원하지 않습니다. Chrome 브라우저 사용을 권장합니다.");
           return;
         }
 
@@ -465,14 +502,14 @@
           let policyName = "";
 
           if (textToSend.includes('보행') || textToSend.includes('바퀴') || textToSend.includes('휠체어')) {
-            replyText = `아! 말씀하신 것은 노인 보행보조기 지원사업을 뜻하시는 거군요! ${userProfile.region} 거주 어르신 대상으로 구매비를 지원해드려요. 아래 버튼을 눌러 바로 신청해보실래요?`;
-            policyName = "노인 보행보조기 지원사업";
-          } else if (textToSend.includes('연금') || textToSend.includes('돈')) {
-            replyText = `어르신, 매월 정기적으로 지원되는 기초연금 신청을 알아봐 드릴게요! 복이가 서류 작성을 도와드릴까요?`;
-            policyName = "기초연금 지원사업";
+            replyText = `어르신께서 문의하신 '노인 보행보조기 지원 사업' 안내입니다.\n현재 ${userProfile.region} 거주 어르신 대상으로 구매 비용 지원 대상이 되실 수 있습니다. 아래 버튼을 통해 바로 간편 신청을 진행하실 수 있습니다.`;
+            policyName = "노인 보행보조기 지원 사업";
+          } else if (textToSend.includes('연금') || textToSend.includes('지원금')) {
+            replyText = `문의하신 '기초연금 지원 사업' 정보입니다.\n어르신의연령(만 ${userProfile.age}세) 기준 조건 조회가 가능합니다. 복이가 간편 서류 접수를 도와드릴까요?`;
+            policyName = "기초연금 지원 사업";
           } else {
-            replyText = `${userProfile.name} 어르신, 말씀해주신 혜택은 ${userProfile.region} 복지센터에서 바로 신청하실 수 있도록 제가 알아봐 드릴게요!`;
-            policyName = "어르신 맞춤 복지 지원";
+            replyText = `${userProfile.name} 어르신의 문의 사항을 확인했습니다. ${userProfile.region} 맞춤 복지 안내 시스템을 확인하여 가장 적합한 혜택을 찾아드리겠습니다.`;
+            policyName = "어르신 맞춤 복지 서비스";
           }
 
           setMessages(prev => [
@@ -491,10 +528,10 @@
 
       return (
         <div className="flex-1 flex flex-col h-screen pb-20">
-          <Header title="대화하기" />
+          <Header title="AI 복지 상담" />
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <div className="text-center my-2">
-              <span className="bg-[#EAE6DF] text-gray-600 text-lg px-4 py-1 rounded-full hand-font">오늘 대화</span>
+              <span className="bg-[#EAE6DF] text-gray-600 text-lg px-4 py-1 rounded-full hand-font">상담 기록</span>
             </div>
 
             {messages.map((m, i) => (
@@ -509,7 +546,7 @@
                         onClick={() => setApplicationForm({ policyName: m.policyName })}
                         className="w-full py-3 bg-[#8C6D3B] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-sm"
                       >
-                        <i data-lucide="file-text" className="w-5 h-5"></i> 신청 서류 작성하기
+                        <i data-lucide="file-text" className="w-5 h-5"></i> {m.policyName} 신청 접수
                       </button>
                     </div>
                   )}
@@ -520,7 +557,7 @@
             {loading && (
               <div className="flex items-center gap-2 text-gray-500 hand-font text-xl">
                 <BokiAvatar className="w-8 h-8" />
-                <span>복이가 생각하고 있어요...</span>
+                <span>복이가 맞춤 정보를 조회 중입니다...</span>
               </div>
             )}
             <div ref={messagesEndRef} />
@@ -532,6 +569,7 @@
               <button 
                 onClick={startListening}
                 className={`p-3.5 rounded-full text-white shadow-md transition-all ${isListening ? 'bg-red-500 animate-pulse' : 'bg-[#8C6D3B]'}`}
+                title="음성 입력"
               >
                 <i data-lucide="mic" className="w-6 h-6"></i>
               </button>
@@ -540,7 +578,7 @@
                 value={input} 
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="궁금한 내용을 말씀하시거나 적어주세요..."
+                placeholder="궁금하신 복지 혜택을 물어보세요..."
                 className="flex-1 p-3 border border-gray-300 rounded-2xl text-lg hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
               />
               <button onClick={() => handleSend()} className="p-3.5 bg-[#3B5E3C] text-white rounded-2xl font-bold hand-font">
@@ -549,29 +587,30 @@
             </div>
           </div>
 
-          {/* 신청서 간편 모달 */}
+          {/* 신청서 모달 */}
           {applicationForm && (
             <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
               <div className="bg-[#FAF8F5] w-full max-w-[390px] rounded-3xl p-6 space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-2xl font-bold text-[#2A3B2C] hand-font">{applicationForm.policyName} 신청</h3>
+                  <h3 className="text-2xl font-bold text-[#2A3B2C] hand-font">{applicationForm.policyName} 간편 신청</h3>
                   <button onClick={() => setApplicationForm(null)} className="text-gray-400">
                     <i data-lucide="x" className="w-6 h-6"></i>
                   </button>
                 </div>
-                <p className="text-lg text-gray-600 hand-font">복이가 어르신의 기본 정보를 바탕으로 신청 접수를 도와드릴게요!</p>
+                <p className="text-lg text-gray-600 hand-font">어르신의 프로필 정보를 기반으로 안전하게 접수를 진행합니다.</p>
                 <div className="space-y-2 bg-white p-4 rounded-2xl border border-gray-200 hand-font text-lg">
-                  <div><strong>성함:</strong> {userProfile.name}</div>
-                  <div><strong>연락처/지역:</strong> {userProfile.region}</div>
+                  <div><strong>신청인:</strong> {userProfile.name} 어르신</div>
+                  <div><strong>거주지:</strong> {userProfile.region}</div>
+                  <div><strong>연령:</strong> 만 {userProfile.age}세</div>
                 </div>
                 <button 
                   onClick={() => {
-                    alert('복이가 성공적으로 접수를 완료했습니다!');
+                    alert('신청 접수가 완료되었습니다. 담당 기관에서 안내 문자가 발송될 예정입니다.');
                     setApplicationForm(null);
                   }} 
                   className="w-full py-3.5 bg-[#3B5E3C] text-white rounded-2xl text-xl font-bold hand-font shadow-md"
                 >
-                  제출 완료하기
+                  최종 접수하기
                 </button>
               </div>
             </div>
@@ -580,7 +619,7 @@
       );
     };
 
-    // 메인 앱
+    // 메인 App
     const App = () => {
       const [started, setStarted] = useState(false);
       const [activeTab, setActiveTab] = useState('chat');
@@ -592,14 +631,25 @@
         voiceSupport: true
       });
 
-      const handleSignUp = (data) => {
-        setUserProfile({ ...userProfile, ...data });
+      const handleLoginSuccess = (name) => {
+        setUserProfile(prev => ({ ...prev, name }));
+        setStarted(true);
+        setActiveTab('browse');
+      };
+
+      const handleSignUpSuccess = (data) => {
+        setUserProfile(prev => ({ ...prev, ...data }));
         setStarted(true);
         setActiveTab('browse');
       };
 
       if (!started) {
-        return <SplashScreen onStart={() => setStarted(true)} onSignUp={handleSignUp} />;
+        return (
+          <SplashScreen 
+            onLoginSuccess={handleLoginSuccess} 
+            onSignUpSuccess={handleSignUpSuccess} 
+          />
+        );
       }
 
       return (
