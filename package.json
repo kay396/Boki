@@ -1,8 +1,0 @@
-{
-  "name": "boki-welfare-app",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "xml2js": "^0.6.2"
-  }
-}
