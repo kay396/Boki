@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>복이 - 맞춤형 복지 정책 서비스</title>
+  <style>
+    :root {
+      --sage-primary: #8A9A86;
+      --sage-dark: #5B6B58;
+      --sage-light: #EBF0EA;
+      --sage-bg: #F4F7F4;
+      --text-main: #2D352B;
+      --white: #FFFFFF;
+      --border-color: #D3DDD2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--sage-bg);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      background-color: var(--white);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    /* Header */
+    header {
+      background-color: var(--sage-primary);
+      color: var(--white);
+      padding: 16px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Content Area */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      padding-bottom: 80px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Search Tab */
+    .search-bar {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--sage-primary);
+      border-radius: 25px;
+      font-size: 15px;
+      outline: none;
+      margin-bottom: 20px;
+      background-color: var(--white);
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--sage-dark);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background-color: var(--sage-light);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      transition: transform 0.2s;
+    }
+
+    .card h4 {
+      color: var(--sage-dark);
+      margin-bottom: 6px;
+      font-size: 16px;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.4;
+    }
+
+    .card .tag {
+      display: inline-block;
+      background-color: var(--sage-primary);
+      color: var(--white);
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 8px;
+    }
+
+    /* Profile Tab */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      color: var(--sage-dark);
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--sage-primary);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* Chat Tab */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 170px);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-bottom: 10px;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .message.bot {
+      background-color: var(--sage-light);
+      align-self: flex-start;
+      border-bottom-left-radius: 2px;
+    }
+
+    .message.user {
+      background-color: var(--sage-primary);
+      color: var(--white);
+      align-self: flex-end;
+      border-bottom-right-radius: 2px;
+    }
+
+    .message img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+
+    .chat-input-area {
+      display: flex;
+      gap: 6px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-color);
+      background-color: var(--white);
+    }
+
+    .chat-input-area input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      outline: none;
+    }
+
+    .btn-icon {
+      background-color: var(--sage-primary);
+      color: var(--white);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    /* Navigation Bar */
+    nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: var(--white);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      width: 33.33%;
+      height: 100%;
+      justify-content: center;
+    }
+
+    .nav-btn.active {
+      color: var(--sage-dark);
+    }
+
+    .voice-status {
+      font-size: 11px;
+      color: var(--sage-dark);
+      background: var(--sage-light);
+      padding: 4px 8px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>복이</header>
+
+  <main>
+    <!-- 찾아보기 모드 (기본) -->
+    <div id="tab-search" class="tab-content active">
+      <input type="text" id="searchInput" class="search-bar" placeholder="복지 정책, 지원금을 검색해보세요..." onkeyup="filterPolicies()">
+      
+      <div id="voiceAlert" class="voice-status" style="display: none;">🔊 음성 지원 기능이 활성화되어 있습니다.</div>
+
+      <div class="section-title">✨ 추천 복지 정책</div>
+      <div id="recommendList" class="card-list">
+        <div class="card">
+          <h4>프로필을 입력해 보세요</h4>
+          <p>프로필을 설정하시면 Gemini AI가 딱 맞는 맞춤 복지 혜택을 추천해 드립니다.</p>
+        </div>
+      </div>
+
+      <div class="section-title">📋 전체 복지 목록</div>
+      <div id="defaultList" class="card-list">
+        <!-- 기본 데이터 -->
+      </div>
+    </div>
+
+    <!-- 프로필 모드 -->
+    <div id="tab-profile" class="tab-content">
+      <div class="section-title">👤 사용자 프로필</div>
+      <form id="profileForm" onsubmit="saveProfile(event)">
+        <div class="form-group">
+          <label for="age">나이</label>
+          <input type="number" id="age" placeholder="예: 65">
+        </div>
+        <div class="form-group">
+          <label for="gender">성별</label>
+          <select id="gender">
+            <option value="none">선택 안함</option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="region">거주 지역</label>
+          <input type="text" id="region" placeholder="예: 서울특별시 관악구">
+        </div>
+        <div class="form-group">
+          <label for="disability">장애 여부 및 유의사항</label>
+          <input type="text" id="disability" placeholder="예: 시각장애 3급, 해당없음 등">
+        </div>
+        <div class="form-group">
+          <label for="career">커리어 및 경력</label>
+          <textarea id="career" rows="3" placeholder="예: 은퇴 직원의 취업 준비 중, 무직 등"></textarea>
+        </div>
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="visuallyImpaired" onchange="toggleVoiceOption(this.checked)">
+          <label for="visuallyImpaired" style="margin:0;">시각장애인 인증 (자동 음성 지원)</label>
+        </div>
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="voiceSupport">
+          <label for="voiceSupport" style="margin:0;">앱 사용 내내 음성 지원 기능 켜기</label>
+        </div>
+        <button type="submit" class="btn-save">저장하고 맞춤 추천받기</button>
+      </form>
+    </div>
+
+    <!-- 대화하기 모드 -->
+    <div id="tab-chat" class="tab-content">
+      <div class="chat-container">
+        <div id="chatMessages" class="chat-messages">
+          <div class="message bot">
+            안녕하세요! 복이 AI 상담사입니다. 도움이 필요한 내용이나 단어가 잘 기억나지 않는 지원용품, 사진 찍으신 지원금 신청 서류가 있다면 언제든 편하게 말씀해 주세요!
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+          <button class="btn-icon" onclick="document.getElementById('imageInput').click()" title="사진 첨부">📷</button>
+          <input type="text" id="chatInput" placeholder="질문이나 묘사를 입력하세요..." onkeydown="if(event.key==='Enter') sendMessage()">
+          <button class="btn-icon" onclick="sendMessage()">➔</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav>
+    <button class="nav-btn" onclick="switchTab('profile')">
+      <span>👤</span>
+      <span>프로필</span>
+    </button>
+    <button class="nav-btn active" onclick="switchTab('search')">
+      <span>🔍</span>
+      <span>찾아보기</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('chat')">
+      <span>💬</span>
+      <span>대화하기</span>
+    </button>
+  </nav>
+</div>
+
+<script>
+  const defaultPolicies = [
+    { title: "기초연금 지원", desc: "만 65세 이상 어르신 중 소득인정액이 일정 기준 이하인 분들께 지급되는 수당입니다.", tag: "어르신" },
+    { title: "장애인 수당 및 이동 보조기구 지원", desc: "장애인의 생활 안정과 이동권 보장을 위한 물리적·경제적 지원 정책입니다.", tag: "장애인" },
+    { title: "청년 내일채움공제", desc: "미취업 청년의 정규직 취업을 촉진하고 장기근속을 지원하는 자산형성 사업입니다.", tag: "청년" },
+    { title: "노인 맞춤 돌봄 서비스", desc: "혼자 힘으로 일상생활을 하기 어려운 어르신께 안전 확인 및 가사 지원 서비스를 제공합니다.", tag: "돌봄" },
+    { title: "긴급복지 생계지원금", desc: "갑작스러운 위기 상황으로 생계 유지가 곤란한 가구에 시급하게 지원되는 생계비입니다.", tag: "긴급지원" }
+  ];
+
+  let currentImageData = null;
+
+  function speak(text) {
+    const voiceEnabled = document.getElementById('voiceSupport').checked;
+    if (voiceEnabled && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ko-KR';
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+    document.getElementById(`tab-${tabName}`).classList.add('active');
+    
+    const btns = document.querySelectorAll('.nav-btn');
+    if (tabName === 'profile') btns[0].classList.add('active');
+    if (tabName === 'search') btns[1].classList.add('active');
+    if (tabName === 'chat') btns[2].classList.add('active');
+
+    if (tabName === 'search') speak('찾아보기 모드입니다.');
+    if (tabName === 'profile') speak('프로필 설정 모드입니다.');
+    if (tabName === 'chat') speak('AI 대화하기 모드입니다.');
+  }
+
+  function toggleVoiceOption(checked) {
+    document.getElementById('voiceSupport').checked = checked;
+    document.getElementById('voiceAlert').style.display = checked ? 'block' : 'none';
+  }
+
+  function renderDefaultPolicies(policies) {
+    const container = document.getElementById('defaultList');
+    container.innerHTML = policies.map(p => `
+      <div class="card">
+        <h4>${p.title}</h4>
+        <p>${p.desc}</p>
+        <span class="tag">${p.tag}</span>
+      </div>
+    `).join('');
+  }
+
+  function filterPolicies() {
+    const keyword = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = defaultPolicies.filter(p => p.title.includes(keyword) || p.desc.includes(keyword) || p.tag.includes(keyword));
+    renderDefaultPolicies(filtered);
+  }
+
+  async function saveProfile(e) {
+    e.preventDefault();
+    const age = document.getElementById('age').value;
+    const gender = document.getElementById('gender').value;
+    const region = document.getElementById('region').value;
+    const disability = document.getElementById('disability').value;
+    const career = document.getElementById('career').value;
+
+    const profileSummary = `나이: ${age}세, 성별: ${gender}, 거주지: ${region}, 장애 여부: ${disability}, 경력/커리어: ${career}`;
+    
+    speak('프로필 기반 맞춤 복지 정책을 찾고 있습니다.');
+    
+    const recommendContainer = document.getElementById('recommendList');
+    recommendContainer.innerHTML = `<div class="card"><p>AI가 적합한 복지 정책을 검색 중입니다...</p></div>`;
+    
+    switchTab('search');
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `사용자 프로필 정보: (${profileSummary}). 이 조건에 부합하는 대한민국 정부/지자체 복지 정책 3가지를 추천해줘. 각 정책마다 [제목]과 [간단설명] 형식을 지켜서 작성해줘.`
+        })
+      });
+
+      const data = await response.json();
+      if(data.text) {
+        recommendContainer.innerHTML = `<div class="card"><h4>🤖 AI 맞춤 추천 정책</h4><p>${data.text.replace(/\n/g, '<br>')}</p></div>`;
+        speak('맞춤 추천 정책 검색이 완료되었습니다.');
+      } else {
+        recommendContainer.innerHTML = `<div class="card"><p>추천 데이터를 가져오지 못했습니다.</p></div>`;
+      }
+    } catch (err) {
+      recommendContainer.innerHTML = `<div class="card"><p>오류가 발생했습니다. 다시 시도해주세요.</p></div>`;
+    }
+  }
+
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      currentImageData = evt.target.result.split(',')[1];
+      appendMessage('user', '[사진이 첨부되었습니다]', evt.target.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function appendMessage(sender, text, imgSrc = null) {
+    const messagesContainer = document.getElementById('chatMessages');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `message ${sender}`;
+
+    if (imgSrc) {
+      const img = document.createElement('img');
+      img.src = imgSrc;
+      msgDiv.appendChild(img);
+    }
+
+    const txtNode = document.createElement('div');
+    txtNode.innerText = text;
+    msgDiv.appendChild(txtNode);
+
+    messagesContainer.appendChild(msgDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    if (sender === 'bot') {
+      speak(text);
+    }
+  }
+
+  async function sendMessage() {
+    const inputEl = document.getElementById('chatInput');
+    const text = inputEl.value.trim();
+
+    if (!text && !currentImageData) return;
+
+    const userPrompt = text;
+    const imageData = currentImageData;
+
+    inputEl.value = '';
+    currentImageData = null;
+
+    if (userPrompt) {
+      appendMessage('user', userPrompt);
+    }
+
+    appendMessage('bot', '생각 중입니다...');
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          prompt: `너는 어르신이나 장애인분들을 돕는 친절하고 다정한 복지 전문가 AI '복이'야. 어르신이 사물이나 단어를 모호하게 묘사하면(예: '바퀴 달린 거 있잖아') 의도를 정확히 파악해서 '아, OOO이요~' 하고 친절하게 맞춰줘. 질문이나 첨부된 이미지에 맞춰 지원받을 수 있는 공공 복지금이나 지원 정책을 쉽고 자세하게 안내해줘. \n\n질문: ${userPrompt}`,
+          image: imageData
+        })
+      });
+
+      const data = await response.json();
+      const botMessages = document.querySelectorAll('.message.bot');
+      const lastBotMsg = botMessages[botMessages.length - 1];
+
+      if (data.text) {
+        lastBotMsg.innerText = data.text;
+        speak(data.text);
+      } else {
+        lastBotMsg.innerText = '죄송합니다. 답변을 생성하지 못했습니다.';
+      }
+    } catch (err) {
+      appendMessage('bot', '네트워크 통신 중 오류가 발생했습니다.');
+    }
+  }
+
+  window.onload = () => {
+    renderDefaultPolicies(defaultPolicies);
+  };
+</script>
+
+</body>
+</html>
