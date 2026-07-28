@@ -3,565 +3,603 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>복이 - 맞춤 복지 도우미</title>
-  
-  <!-- Tailwind CSS CDN -->
+  <title>복이 - 손주같은 복지 도우미</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- Google Fonts: 감자꽃 폰트 & Noto Sans KR -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-
+  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Gamja Flower', 'Noto Sans KR', sans-serif;
-    }
     body {
-      background-color: #f2f0e9;
+      font-family: 'Gamja Flower', 'Noto Sans KR', cursive, sans-serif;
+      background-color: #f7f6f0;
+      color: #2c3e50;
       margin: 0;
       padding: 0;
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 100vh;
     }
     .app-container {
       width: 100%;
-      max-width: 410px;
-      height: 840px;
+      max-width: 430px;
+      min-height: 100vh;
       background-color: #FAF8F5;
       position: relative;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
       display: flex;
       flex-direction: column;
-      border-radius: 30px;
-      overflow: hidden;
-      border: 1px solid #E5E0D8;
     }
     .hand-font { font-family: 'Gamja Flower', cursive; }
-    
-    /* 스크롤바 숨기기 */
+    .noto-font { font-family: 'Noto Sans KR', sans-serif; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body>
+  <div id="root" class="app-container"></div>
 
-  <div class="app-container" id="app"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-  <script>
-    // 전역 상태
-    let state = {
-      activeTab: 'browse', // 기본 진입: 찾아보기 (로그인 단계 제거)
-      userProfile: {
-        name: '',
-        gender: '여성',
-        age: '72',
-        region: '서울특별시',
-        needsHelp: '없음',
-        voiceSupport: true
-      },
-      messages: [
-        { 
-          id: 1,
-          sender: 'user', 
-          text: "아 그 왜 바퀴 달리고 막 가고 하는 거 있잖아", 
-          time: "오후 2:15" 
-        },
-        { 
-          id: 2,
-          sender: 'boki', 
-          text: "아! 전동휠체어나 실버카 말씀이시군요? 어르신 상황에 맞는 지원 정책이 있어요!", 
-          time: "오후 2:16",
-          card: {
-            title: "보조기구 지원사업",
-            desc: "정부 지원금 최대 90%"
-          }
-        }
-      ],
-      selectedPolicy: null
+    // 강아지 캐릭터 SVG
+    const BokiAvatar = ({ className = "w-12 h-12" }) => (
+      <div className={`bg-[#F5F2EA] rounded-full flex items-center justify-center border border-[#D0C9B8] overflow-hidden p-1 ${className}`}>
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <path d="M 25 35 C 10 35, 10 65, 25 60 Z" fill="#EADBC8" stroke="#2C3E50" strokeWidth="3.5" strokeLinejoin="round"/>
+          <path d="M 75 35 C 90 35, 90 65, 75 60 Z" fill="#EADBC8" stroke="#2C3E50" strokeWidth="3.5" strokeLinejoin="round"/>
+          <ellipse cx="50" cy="55" rx="32" ry="26" fill="#FFFDF9" stroke="#2C3E50" strokeWidth="3.5"/>
+          <circle cx="38" cy="45" r="4" fill="#2C3E50"/>
+          <circle cx="62" cy="45" r="4" fill="#2C3E50"/>
+          <ellipse cx="50" cy="52" rx="5" ry="4" fill="#2C3E50"/>
+          <path d="M 45 58 Q 50 63 55 58" fill="none" stroke="#2C3E50" strokeWidth="3.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+    );
+
+    const Header = ({ title }) => (
+      <div className="flex items-center justify-between px-5 py-4 bg-[#FAF8F5] border-b border-[#EAE6DF] sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <BokiAvatar className="w-10 h-10" />
+          <span className="text-2xl font-bold text-[#3B5E3C] hand-font">복이</span>
+        </div>
+        <h1 className="text-2xl font-bold text-[#2A3B2C] hand-font">{title}</h1>
+        <div className="w-10 h-10 rounded-full bg-[#3B5E3C] flex items-center justify-center text-white">
+          <i data-lucide="user" className="w-5 h-5"></i>
+        </div>
+      </div>
+    );
+
+    const BottomNav = ({ activeTab, setActiveTab }) => {
+      useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [activeTab]);
+      return (
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#FAF8F5] border-t border-[#EAE6DF] flex justify-around py-3 px-4 z-20">
+          <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 ${activeTab === 'profile' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
+            <i data-lucide="user" className="w-6 h-6"></i>
+            <span className="text-lg hand-font font-bold">프로필</span>
+          </button>
+          <button onClick={() => setActiveTab('browse')} className={`flex flex-col items-center gap-1 ${activeTab === 'browse' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
+            <i data-lucide="search" className="w-6 h-6"></i>
+            <span className="text-lg hand-font font-bold">찾아보기</span>
+          </button>
+          <button onClick={() => setActiveTab('chat')} className={`flex flex-col items-center gap-1 ${activeTab === 'chat' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
+            <i data-lucide="message-square" className="w-6 h-6"></i>
+            <span className="text-lg hand-font font-bold">대화하기</span>
+          </button>
+        </div>
+      );
     };
 
-    // 음성 읽어주기 (TTS)
-    function speakText(text) {
-      if ('speechSynthesis' in window && state.userProfile.voiceSupport) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ko-KR';
-        utterance.rate = 0.85; // 어르신에 맞춘 천천히 듣기
-        window.speechSynthesis.speak(utterance);
-      }
-    }
-
-    // 음성 인식 (STT) - 마이크 클릭 시 작동
-    function startVoiceInput() {
-      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert("이 브라우저는 음성 인식을 지원하지 않습니다. 크롬 브라우저를 이용해 주세요.");
-        return;
-      }
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.lang = 'ko-KR';
-      
-      const bokiBtn = document.getElementById('mic-btn');
-      if (bokiBtn) bokiBtn.classList.add('animate-ping');
-
-      recognition.onresult = function(event) {
-        const transcript = event.results[0][0].transcript;
-        if (bokiBtn) bokiBtn.classList.remove('animate-ping');
-        handleUserSend(transcript);
-      };
-
-      recognition.onerror = function() {
-        if (bokiBtn) bokiBtn.classList.remove('animate-ping');
-        alert("음성을 인식하지 못했습니다. 다시 시도해 주세요.");
-      };
-
-      recognition.start();
-    }
-
-    // 전체 메인 렌더링
-    function render() {
-      const app = document.getElementById('app');
-      app.innerHTML = '';
-
-      // 1. 헤더 (고정)
-      app.appendChild(createHeader());
-
-      // 2. 메인 바디 영역 (탭 전환)
-      const contentArea = document.createElement('div');
-      contentArea.className = "flex-1 overflow-y-auto no-scrollbar relative";
-
-      if (state.activeTab === 'browse') {
-        contentArea.appendChild(createBrowseScreen());
-      } else if (state.activeTab === 'profile') {
-        contentArea.appendChild(createProfileScreen());
-      } else if (state.activeTab === 'chat') {
-        contentArea.appendChild(createChatScreen());
-      }
-      app.appendChild(contentArea);
-
-      // 3. 하단 네비게이션 (고정)
-      app.appendChild(createBottomNav());
-
-      // 4. 모달창 (선택된 정책 상세 보기)
-      if (state.selectedPolicy) {
-        app.appendChild(createPolicyModal());
-      }
-
-      // 아이콘 업데이트
-      if (window.lucide) window.lucide.createIcons();
-    }
-
-    // Header 컴포넌트 (디자인 시안 상단바 구현)
-    function createHeader() {
-      const header = document.createElement('div');
-      header.className = "flex items-center justify-between px-5 py-3 bg-[#FAF8F5] border-b border-[#EAE6DF] z-10 shrink-0";
-
-      const titleMap = { browse: '찾아보기', profile: '프로필', chat: 'Chat' };
-
-      header.innerHTML = `
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-full border border-[#B2A898] flex items-center justify-center bg-white">
-            <span class="text-sm">🐶</span>
-          </div>
-          <span class="text-xl font-bold text-[#2A3B2C] hand-font">복이</span>
-        </div>
-        <h1 class="text-xl font-bold text-[#2A3B2C] hand-font">${titleMap[state.activeTab]}</h1>
-        <button onclick="switchTab('profile')" class="w-8 h-8 rounded-full bg-[#3B5E3C] flex items-center justify-center text-white">
-          <i data-lucide="user" class="w-4 h-4"></i>
-        </button>
-      `;
-      return header;
-    }
-
-    // 1. 찾아보기 (메인 혜택 추천 화면)
-    function createBrowseScreen() {
-      const container = document.createElement('div');
-      container.className = "p-4 space-y-4 pb-20";
-
-      container.innerHTML = `
-        <!-- 메인 배너 카드 -->
-        <div class="bg-[#789975] text-white p-5 rounded-2xl relative overflow-hidden shadow-sm">
-          <div class="flex justify-between items-start">
-            <div>
-              <span class="inline-block bg-[#688865] text-white text-xs px-2.5 py-1 rounded-full hand-font mb-2">복이 인공지능 추천</span>
-              <h2 class="text-2xl font-bold hand-font leading-snug">어르신에게 딱 맞는<br/>혜택을 찾아왔어요!</h2>
-              <p class="text-xs hand-font mt-2 text-white/90">입력하신 어르신의 건강 상태와 거주 지역을<br/>재 선별한 소식이에요.</p>
-            </div>
-            <div class="text-4xl">🐶</div>
-          </div>
-        </div>
-
-        <!-- 빠른 카테고리 지원 버튼 -->
-        <div class="grid grid-cols-2 gap-3">
-          <button class="bg-[#EAE6DF] hover:bg-[#DFD9CD] p-3 rounded-xl flex items-center justify-center gap-2 border border-[#D5CFC0] transition-colors">
-            <span class="text-lg">🏥</span>
-            <span class="text-lg font-bold text-[#2A3B2C] hand-font">치료 지원</span>
-          </button>
-          <button class="bg-[#EAE6DF] hover:bg-[#DFD9CD] p-3 rounded-xl flex items-center justify-center gap-2 border border-[#D5CFC0] transition-colors">
-            <span class="text-lg">💵</span>
-            <span class="text-lg font-bold text-[#2A3B2C] hand-font">생활 지원금</span>
-          </button>
-        </div>
-
-        <!-- 맞춤 혜택 리스트 -->
-        <div>
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="text-xl font-bold text-[#2A3B2C] hand-font">맞춤 혜택 리스트</h3>
-            <span class="text-xs text-gray-500 hand-font cursor-pointer">전체보기</span>
-          </div>
-
-          <div class="space-y-3">
-            <!-- 카드 1 -->
-            <div onclick="openPolicy(1)" class="bg-white p-4 rounded-xl border border-[#EAE6DF] shadow-sm flex justify-between gap-3 cursor-pointer">
-              <div class="flex-1">
-                <span class="inline-block bg-[#EBF2EA] text-[#3B5E3C] text-xs px-2 py-0.5 rounded hand-font font-bold mb-1">마감 임박</span>
-                <h4 class="text-lg font-bold text-[#2A3B2C] hand-font">기초연금 정기 지급 안내</h4>
-                <p class="text-xs text-gray-600 hand-font mt-0.5">매월 최대 33.4만원의 생활비를 지원받으실 수 있습니다.</p>
-                <p class="text-[11px] text-gray-400 hand-font mt-2">신청 기간: 12월 31일까지</p>
-              </div>
-              <div class="w-14 h-14 bg-[#F5F2EA] rounded-lg flex items-center justify-center text-2xl shrink-0">🌾</div>
-            </div>
-
-            <!-- 카드 2 -->
-            <div onclick="openPolicy(2)" class="bg-white p-4 rounded-xl border border-[#EAE6DF] shadow-sm flex justify-between gap-3 cursor-pointer">
-              <div class="flex-1">
-                <span class="inline-block bg-[#EBF2EA] text-[#3B5E3C] text-xs px-2 py-0.5 rounded hand-font font-bold mb-1">신규 혜택</span>
-                <h4 class="text-lg font-bold text-[#2A3B2C] hand-font">노인 무료 인공관절 수술비</h4>
-                <p class="text-xs text-gray-600 hand-font mt-0.5">수술비 본인 부담금 중 최대 120만원까지 지원해요.</p>
-                <p class="text-[11px] text-gray-400 hand-font mt-2">어르신 거주지 인근 보건소</p>
-              </div>
-              <div class="w-14 h-14 bg-[#F5F2EA] rounded-lg flex items-center justify-center text-2xl shrink-0">🦴</div>
-            </div>
-
-            <!-- 카드 3 -->
-            <div onclick="openPolicy(3)" class="bg-white p-4 rounded-xl border border-[#EAE6DF] shadow-sm flex justify-between gap-3 cursor-pointer">
-              <div class="flex-1">
-                <span class="inline-block bg-[#EBF2EA] text-[#3B5E3C] text-xs px-2 py-0.5 rounded hand-font font-bold mb-1">인기</span>
-                <h4 class="text-lg font-bold text-[#2A3B2C] hand-font">어르신 일자리 사업 참여</h4>
-                <p class="text-xs text-gray-600 hand-font mt-0.5">가까운 복지관에서 가벼운 일거리를 찾아보세요.</p>
-                <p class="text-[11px] text-gray-400 hand-font mt-2">자세히 알아보기</p>
-              </div>
-              <div class="w-14 h-14 bg-[#F5F2EA] rounded-lg flex items-center justify-center text-2xl shrink-0">👴</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 하단 질문 유도 배너 -->
-        <div class="bg-[#EAE6DF] p-4 rounded-2xl text-center space-y-2 mt-4">
-          <div class="text-2xl">🎉</div>
-          <p class="text-base font-bold text-[#2A3B2C] hand-font">더 많은 혜택이 있을까요?<br/><span class="text-xs font-normal text-gray-600">복이에게 "내가 받을 수 있는 돈 더 있어?"하고 물어보세요.</span></p>
-          <button onclick="switchTab('chat')" class="w-full py-2.5 bg-[#8C6D3B] text-white rounded-xl text-lg font-bold hand-font flex items-center justify-center gap-1 shadow-sm">
-            👇 복이에게 물어보기
-          </button>
-        </div>
-      `;
-      return container;
-    }
-
-    // 2. 프로필 설정 화면 (시안 3번째 화면 그대로 반영)
-    function createProfileScreen() {
-      const container = document.createElement('div');
-      container.className = "p-4 space-y-4 pb-20";
-
-      const p = state.userProfile;
-
-      container.innerHTML = `
-        <!-- 말풍선 안내 -->
-        <div class="flex items-start gap-2 bg-[#EAE6DF] p-3 rounded-2xl border border-[#D5CFC0]">
-          <div class="w-8 h-8 rounded-full border border-[#B2A898] flex items-center justify-center bg-white shrink-0 mt-1">🐶</div>
-          <p class="text-base text-[#2A3B2C] hand-font leading-snug">
-            "안녕하세요! 저는 복이라고 해요.<br/>어르신에게 딱 맞는 소식을 찾아드릴게요.<br/>프로필을 알려주시겠어요?"
-          </p>
-        </div>
-
-        <!-- 입력 폼 -->
-        <div class="space-y-3 hand-font">
-          <div>
-            <label class="block text-gray-700 font-bold mb-1 text-base">성함이 어떻게 되시나요?</label>
-            <input type="text" id="prof-name" value="${p.name}" placeholder="이름을 입력해주세요" class="w-full p-2.5 border border-gray-300 rounded-xl text-lg bg-white focus:outline-none focus:border-[#3B5E3C]">
-          </div>
-
-          <div class="flex gap-3">
-            <div class="flex-1">
-              <label class="block text-gray-700 font-bold mb-1 text-base">성별</label>
-              <div class="flex gap-1 border border-gray-300 rounded-xl p-1 bg-white">
-                <button type="button" onclick="setGender('남성')" class="flex-1 py-1 rounded-lg text-base font-bold ${p.gender === '남성' ? 'bg-[#3B5E3C] text-white' : 'text-gray-600'}">남성</button>
-                <button type="button" onclick="setGender('여성')" class="flex-1 py-1 rounded-lg text-base font-bold ${p.gender === '여성' ? 'bg-[#3B5E3C] text-white' : 'text-gray-600'}">여성</button>
+    // 스플래시 (초기 시작) 화면
+    const SplashScreen = ({ onStart }) => {
+      useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, []);
+      return (
+        <div className="flex-1 flex flex-col items-center justify-between p-6 text-center bg-[#FAF8F5]">
+          <div className="w-full flex-1 flex flex-col items-center justify-center">
+            <div className="relative mb-6">
+              <div className="w-48 h-48 bg-[#F5F2EA] rounded-full flex items-center justify-center border-2 border-[#D0C9B8] p-4 shadow-sm">
+                <BokiAvatar className="w-36 h-36 border-none bg-transparent" />
               </div>
             </div>
-            <div class="flex-1">
-              <label class="block text-gray-700 font-bold mb-1 text-base">나이</label>
-              <div class="flex items-center border border-gray-300 rounded-xl p-1 bg-white px-2">
-                <span class="text-gray-500 text-sm">예:</span>
-                <input type="number" id="prof-age" value="${p.age}" class="w-full p-1 text-lg border-none focus:outline-none text-right">
-              </div>
-            </div>
+            <h2 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-1">안녕하세요!</h2>
+            <h1 className="text-3xl font-bold text-[#3B5E3C] hand-font mb-4">손주같은 복이가<br/>도와드릴게요</h1>
+            <p className="text-xl text-gray-600 hand-font">어려운 휴대폰 사용,<br/>복이와 함께라면 쉽고 즐거워요.</p>
           </div>
-
-          <div>
-            <label class="block text-gray-700 font-bold mb-1 text-base">어디에 살고 계신가요?</label>
-            <select id="prof-region" class="w-full p-2.5 border border-gray-300 rounded-xl text-lg bg-white focus:outline-none">
-              <option value="서울특별시" ${p.region === '서울특별시' ? 'selected' : ''}>서울특별시</option>
-              <option value="경기도" ${p.region === '경기도' ? 'selected' : ''}>경기도</option>
-              <option value="부산광역시" ${p.region === '부산광역시' ? 'selected' : ''}>부산광역시</option>
-              <option value="대구광역시" ${p.region === '대구광역시' ? 'selected' : ''}>대구광역시</option>
-              <option value="강원도" ${p.region === '강원도' ? 'selected' : ''}>강원도</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-gray-700 font-bold mb-1 text-base">도움이 필요한 신체적 어려움이 있으신가요?</label>
-            <div class="flex gap-2">
-              <button type="button" onclick="setNeedsHelp('없음')" class="flex-1 py-2 border border-gray-300 rounded-xl text-lg font-bold bg-white ${p.needsHelp === '없음' ? 'border-[#3B5E3C] text-[#3B5E3C] bg-[#EBF2EA]' : 'text-gray-600'}">없음</button>
-              <button type="button" onclick="setNeedsHelp('있음')" class="flex-1 py-2 border border-gray-300 rounded-xl text-lg font-bold bg-white ${p.needsHelp === '있음' ? 'border-[#3B5E3C] text-[#3B5E3C] bg-[#EBF2EA]' : 'text-gray-600'}">있음</button>
-            </div>
-          </div>
-
-          <!-- 음성 지원 모드 스위치 -->
-          <div class="bg-[#EBF2EA] p-3 rounded-2xl flex items-center justify-between border border-[#C6DCCE] mt-2">
-            <div class="flex items-center gap-2">
-              <div class="w-7 h-7 rounded-full bg-[#3B5E3C] text-white flex items-center justify-center text-xs">🎙️</div>
-              <div>
-                <p class="text-base font-bold text-[#2A3B2C]">음성 지원 모드</p>
-                <p class="text-xs text-gray-600">복이가 글씨를 소리로 읽어드려요</p>
-              </div>
-            </div>
-            <button onclick="toggleVoiceSupport()" class="w-12 h-6 rounded-full p-0.5 transition-colors ${p.voiceSupport ? 'bg-[#3B5E3C]' : 'bg-gray-300'} flex items-center">
-              <div class="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${p.voiceSupport ? 'translate-x-6' : 'translate-x-0'}"></div>
+          <div className="w-full space-y-3 mb-8">
+            <button onClick={onStart} className="w-full py-4 bg-[#3B5E3C] text-white rounded-3xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md hover:bg-[#2e4a2f]">
+              시작하기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
+            </button>
+            <button onClick={onStart} className="w-full py-3 bg-[#EAE6DF] text-gray-700 rounded-3xl text-xl font-bold hand-font">
+              이미 계정이 있어요 (로그인)
             </button>
           </div>
-
-          <button onclick="saveProfile()" class="w-full py-3 bg-[#3B5E3C] text-white rounded-xl text-xl font-bold shadow-md mt-3 hover:bg-[#2F4A30] transition-colors">
-            저장하고 추천 받기 ➔
-          </button>
         </div>
-      `;
-      return container;
-    }
+      );
+    };
 
-    // 3. 복이와 대화하기 Screen (시안 4번째 화면 그대로 반영)
-    function createChatScreen() {
-      const container = document.createElement('div');
-      container.className = "flex flex-col h-full justify-between p-3 pb-20";
+    // 프로필 화면
+    const ProfileScreen = ({ userProfile, setUserProfile, onSave }) => {
+      const speak = (text) => {
+        if (userProfile.voiceSupport && 'speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'ko-KR';
+          window.speechSynthesis.speak(utterance);
+        }
+      };
 
-      let chatList = state.messages.map(m => {
-        if (m.sender === 'user') {
-          return `
-            <div class="flex justify-end items-end gap-1 mb-3">
-              <span class="text-[10px] text-gray-400 hand-font">${m.time}</span>
-              <div class="bg-[#789975] text-white p-3 rounded-2xl rounded-tr-none text-lg hand-font max-w-[75%] shadow-sm leading-relaxed">
-                ${m.text}
+      return (
+        <div className="flex-1 flex flex-col pb-24">
+          <Header title="프로필" />
+          <div className="p-5 space-y-5 overflow-y-auto">
+            <div className="flex flex-col items-center">
+              <BokiAvatar className="w-24 h-24 mb-3" />
+              <div className="bg-[#EAE6DF] p-4 rounded-2xl border border-[#D5CFC0] text-center w-full">
+                <p className="text-xl text-[#2A3B2C] hand-font">"안녕하세요! 저는 복이라고 해요. 어르신께 꼭 맞는 소식을 찾아드릴게요. 정보를 알려주시겠어요?"</p>
               </div>
             </div>
-          `;
-        } else {
-          return `
-            <div class="flex items-start gap-2 mb-3">
-              <div class="w-8 h-8 rounded-full border border-[#B2A898] flex items-center justify-center bg-white shrink-0">🐶</div>
-              <div class="max-w-[80%] space-y-2">
-                <div class="bg-white text-[#2A3B2C] p-3 rounded-2xl rounded-tl-none border border-[#EAE6DF] text-lg hand-font shadow-sm leading-relaxed">
-                  ${m.text}
-                </div>
-                ${m.card ? `
-                  <div class="bg-white p-3 rounded-2xl border border-[#EAE6DF] shadow-sm space-y-2">
-                    <p class="text-xs text-gray-500 hand-font">보장 보조기구 지원사업</p>
-                    <p class="text-base font-bold text-[#2A3B2C] hand-font">${m.card.title}</p>
-                    <p class="text-xs text-[#3B5E3C] font-bold hand-font">${m.card.desc}</p>
-                    <button onclick="openPolicy(2)" class="w-full py-1.5 bg-[#8C6D3B] text-white rounded-xl text-sm font-bold hand-font">
-                      신청 서류 확인하기
-                    </button>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성함이 어떻게 되시나요?</label>
+                <input 
+                  type="text" 
+                  value={userProfile.name} 
+                  onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })} 
+                  placeholder="이름을 입력해주세요"
+                  className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                />
+              </div>
+
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성별</label>
+                  <div className="flex gap-2 bg-[#EAE6DF] p-1 rounded-2xl">
+                    <button 
+                      onClick={() => setUserProfile({ ...userProfile, gender: '남성' })} 
+                      className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${userProfile.gender === '남성' ? 'bg-white shadow' : 'text-gray-600'}`}
+                    >남성</button>
+                    <button 
+                      onClick={() => setUserProfile({ ...userProfile, gender: '여성' })} 
+                      className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${userProfile.gender === '여성' ? 'bg-white shadow' : 'text-gray-600'}`}
+                    >여성</button>
                   </div>
-                ` : ''}
-                <div class="flex items-center gap-2">
-                  <span class="text-[10px] text-gray-400 hand-font">${m.time}</span>
-                  <button onclick="speakText('${m.text}')" class="text-xs text-[#3B5E3C] hand-font flex items-center gap-0.5 border border-[#3B5E3C] rounded-full px-2 py-0.5 bg-white">
-                    🔊 읽어주기
+                </div>
+
+                <div className="flex-1">
+                  <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">나이</label>
+                  <input 
+                    type="number" 
+                    value={userProfile.age} 
+                    onChange={(e) => setUserProfile({ ...userProfile, age: e.target.value })} 
+                    placeholder="예: 72"
+                    className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">어디에 살고 계신가요?</label>
+                <select 
+                  value={userProfile.region} 
+                  onChange={(e) => setUserProfile({ ...userProfile, region: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                >
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="인천광역시">인천광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="강원도">강원도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전라북도">전라북도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">도움이 필요한 신체적 어려움(장애)이 있으신가요?</label>
+                <div className="flex gap-2 bg-[#EAE6DF] p-1 rounded-2xl">
+                  <button 
+                    onClick={() => setUserProfile({ ...userProfile, disabled: false })} 
+                    className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${!userProfile.disabled ? 'bg-white shadow' : 'text-gray-600'}`}
+                  >없음</button>
+                  <button 
+                    onClick={() => setUserProfile({ ...userProfile, disabled: true })} 
+                    className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${userProfile.disabled ? 'bg-white shadow' : 'text-gray-600'}`}
+                  >있음</button>
+                </div>
+              </div>
+
+              <div className="bg-[#EBF3ED] p-4 rounded-2xl flex items-center justify-between border border-[#C6DCCE]">
+                <div>
+                  <p className="text-xl font-bold text-[#2A3B2C] hand-font">음성 지원 모드</p>
+                  <p className="text-base text-gray-600 hand-font">복이가 글씨를 읽어드려요</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    const nextVal = !userProfile.voiceSupport;
+                    setUserProfile({ ...userProfile, voiceSupport: nextVal });
+                    if (nextVal) speak("음성 지원 모드가 켜졌습니다.");
+                  }}
+                  className={`w-14 h-8 rounded-full p-1 transition-colors ${userProfile.voiceSupport ? 'bg-[#3B5E3C]' : 'bg-gray-300'}`}
+                >
+                  <div className={`w-6 h-6 bg-white rounded-full transform transition-transform ${userProfile.voiceSupport ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                </button>
+              </div>
+
+              <button onClick={() => { speak("프로필을 저장하고 맞춤 혜택을 추천받습니다."); onSave(); }} className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-4 flex items-center justify-center gap-2">
+                저장하고 추천 받기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 찾아보기 화면
+    const BrowseScreen = ({ userProfile, onOpenChat }) => {
+      const [policies, setPolicies] = useState([]);
+      const [loading, setLoading] = useState(false);
+      const [selectedPolicy, setSelectedPolicy] = useState(null);
+
+      useEffect(() => {
+        fetchRecommendedPolicies();
+      }, [userProfile]);
+
+      const fetchRecommendedPolicies = async () => {
+        setLoading(true);
+        try {
+          const prompt = `사용자 프로필: Name: ${userProfile.name}, Age: ${userProfile.age}, Gender: ${userProfile.gender}, Region: ${userProfile.region}, Disabled: ${userProfile.disabled ? '예' : '아니오'}. 
+          이 어르신에게 맞는 맞춤형 복지 정책 4개를 추천해주세요. JSON 배열 형식으로만 응답하세요. 다른 설명 텍스트는 제외하세요.
+          형식:
+          [
+            {
+              "id": 1,
+              "tag": "마감 임박",
+              "title": "기초연금 정기 지급 안내",
+              "shortDesc": "매월 최대 33만원의 생활비를 지원받으실 수 있습니다.",
+              "org": "보건복지부",
+              "eligibility": "만 65세 이상 및 소득인정액 기준 하위 70%",
+              "period": "상시 신청 가능"
+            }
+          ]`;
+
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+          });
+          const data = await res.json();
+          let jsonText = data.text.trim();
+          if (jsonText.startsWith('```json')) {
+            jsonText = jsonText.replace(/^```json/, '').replace(/```$/, '').trim();
+          } else if (jsonText.startsWith('```')) {
+            jsonText = jsonText.replace(/^```/, '').replace(/```$/, '').trim();
+          }
+          const parsed = JSON.parse(jsonText);
+          setPolicies(parsed);
+        } catch (e) {
+          // 실패 시 기본 데이터
+          setPolicies([
+            { id: 1, tag: "마감 임박", title: "기초연금 정기 지급 안내", shortDesc: "매월 최대 33.4만원의 생활비를 지원받으실 수 있습니다.", org: "보건복지부 및 주민센터", eligibility: "만 65세 이상 어르신 중 소득인정액 이하", period: "12월 31일까지" },
+            { id: 2, tag: "신규 혜택", title: "노인 무료 인공관절 수술비 지원", shortDesc: "수술비 본인 부담금 중 최대 120만원까지 지원해요.", org: "거주지 인근 보건소", eligibility: "만 60세 이상 저소득층 어르신", period: "예산 소진 시까지" },
+            { id: 3, tag: "인기", title: "어르신 일자리 사업 참여", shortDesc: "가까운 복지관에서 가벼운 일거리를 찾아보세요.", org: "시/군/구 노인복지관", eligibility: "만 60~65세 이상 구직 희망 어르신", period: "상시 모집" }
+          ]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="flex-1 flex flex-col pb-24">
+          <Header title="찾아보기" />
+          <div className="p-5 space-y-5 overflow-y-auto">
+            {/* 상단 혜택 가이드 카드 */}
+            <div className="bg-[#789975] text-white p-6 rounded-3xl relative overflow-hidden shadow-sm">
+              <span className="bg-white/20 text-white text-sm px-3 py-1 rounded-full hand-font">복이 인공지능 추천</span>
+              <h2 className="text-3xl font-bold hand-font mt-2 mb-1">어르신에게 딱 맞는<br/>혜택을 찾아왔어요!</h2>
+              <p className="text-lg hand-font opacity-90">{userProfile.name} 어르신의 조건에 맞춰 선별한 소식이에요.</p>
+            </div>
+
+            {/* 맞춤 혜택 리스트 */}
+            <div>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-2xl font-bold text-[#2A3B2C] hand-font">맞춤 혜택 리스트</h3>
+              </div>
+
+              {loading ? (
+                <div className="p-8 text-center text-xl hand-font text-gray-500">복이가 어르신을 위한 혜택을 찾고 있어요...</div>
+              ) : (
+                <div className="space-y-3">
+                  {policies.map((p) => (
+                    <div key={p.id} onClick={() => setSelectedPolicy(p)} className="bg-white p-4 rounded-2xl border border-[#EAE6DF] shadow-sm cursor-pointer hover:border-[#3B5E3C] transition-all">
+                      {p.tag && (
+                        <span className="inline-block bg-[#E5EBE3] text-[#3B5E3C] text-sm px-2.5 py-0.5 rounded-full hand-font font-bold mb-2">
+                          {p.tag}
+                        </span>
+                      )}
+                      <h4 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-1">{p.title}</h4>
+                      <p className="text-lg text-gray-600 hand-font mb-2">{p.shortDesc}</p>
+                      <div className="text-base text-[#8C6D3B] hand-font flex items-center gap-1">
+                        <i data-lucide="info" className="w-4 h-4"></i> 자세히 알아보기
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 하단 대화 유도 버튼 */}
+            <div className="bg-[#EAE6DF] p-5 rounded-3xl text-center space-y-3">
+              <p className="text-xl font-bold text-[#2A3B2C] hand-font">더 많은 혜택이 궁금하신가요?</p>
+              <button onClick={onOpenChat} className="w-full py-3.5 bg-[#8C6D3B] text-white rounded-2xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md">
+                <i data-lucide="mic" className="w-6 h-6"></i> 복이에게 물어보기
+              </button>
+            </div>
+          </div>
+
+          {/* 정책 상세보기 모달 */}
+          {selectedPolicy && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-[#FAF8F5] w-full max-w-[390px] rounded-3xl p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-3xl font-bold text-[#2A3B2C] hand-font">{selectedPolicy.title}</h3>
+                  <button onClick={() => setSelectedPolicy(null)} className="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" className="w-7 h-7"></i>
+                  </button>
+                </div>
+                <p className="text-xl text-gray-700 hand-font">{selectedPolicy.shortDesc}</p>
+                <hr className="border-[#EAE6DF]" />
+                <div className="space-y-3 hand-font text-xl">
+                  <div>
+                    <span className="font-bold text-[#3B5E3C]">주관 기관: </span>
+                    <span>{selectedPolicy.org || '보건복지부'}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-[#3B5E3C]">자격 요건: </span>
+                    <span>{selectedPolicy.eligibility || '주소지 거주 어르신'}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-[#3B5E3C]">신청 기간: </span>
+                    <span>{selectedPolicy.period || '상시'}</span>
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <button 
+                    onClick={() => {
+                      alert('신청 화면으로 연결됩니다.');
+                      setSelectedPolicy(null);
+                    }}
+                    className="w-full py-3.5 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md"
+                  >
+                    바로 신청하기
                   </button>
                 </div>
               </div>
             </div>
-          `;
+          )}
+        </div>
+      );
+    };
+
+    // 대화하기 화면
+    const ChatScreen = ({ userProfile }) => {
+      const [messages, setMessages] = useState([
+        { 
+          sender: 'boki', 
+          text: `안녕하세요 ${userProfile.name} 어르신! 손주 복이에요. 구체적인 이름을 몰라도 생각나시는 대로 편하게 말씀해주시면 찾아드릴게요!` 
         }
-      }).join('');
+      ]);
+      const [input, setInput] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [applicationForm, setApplicationForm] = useState(null);
+      const messagesEndRef = useRef(null);
 
-      container.innerHTML = `
-        <!-- 날짜 표시 -->
-        <div class="text-center my-1">
-          <span class="bg-[#EAE6DF] text-gray-600 text-xs px-3 py-0.5 rounded-full hand-font">오늘</span>
-        </div>
-
-        <!-- 메세지 리스트 -->
-        <div class="flex-1 overflow-y-auto no-scrollbar py-2">
-          ${chatList}
-        </div>
-
-        <!-- 하단 입력창 (디자인 시안 그대로) -->
-        <div class="mt-2 relative">
-          <div class="flex items-center bg-white rounded-full border border-[#D5CFC0] p-1.5 pl-4 shadow-sm">
-            <input type="text" id="chat-input" placeholder="복이에게 말해보세요..." class="flex-1 text-lg hand-font focus:outline-none bg-transparent" onkeydown="if(event.key==='Enter') sendMessage()">
-            <button id="mic-btn" onclick="startVoiceInput()" class="w-9 h-9 bg-[#3B5E3C] text-white rounded-full flex items-center justify-center font-bold text-sm ml-1">
-              🎙️
-            </button>
-            <button onclick="sendMessage()" class="w-9 h-9 bg-[#8C6D3B] text-white rounded-full flex items-center justify-center font-bold text-sm ml-1">
-              ➔
-            </button>
-          </div>
-        </div>
-      `;
-      return container;
-    }
-
-    // 하단 네비게이션
-    function createBottomNav() {
-      const nav = document.createElement('div');
-      nav.className = "absolute bottom-0 left-0 w-full bg-[#FAF8F5] border-t border-[#EAE6DF] flex justify-around py-2 px-3 z-20";
-
-      const tabs = [
-        { id: 'profile', label: '프로필', icon: 'user' },
-        { id: 'browse', label: '찾아보기', icon: 'search' },
-        { id: 'chat', label: '대화하기', icon: 'message-square' }
-      ];
-
-      nav.innerHTML = tabs.map(t => `
-        <button onclick="switchTab('${t.id}')" class="flex flex-col items-center gap-0.5 ${state.activeTab === t.id ? 'text-[#3B5E3C]' : 'text-gray-400'}">
-          <i data-lucide="${t.icon}" class="w-5 h-5"></i>
-          <span class="text-xs hand-font font-bold">${t.label}</span>
-        </button>
-      `).join('');
-
-      return nav;
-    }
-
-    // 상세보기 모달
-    function createPolicyModal() {
-      const modal = document.createElement('div');
-      modal.className = "absolute inset-0 bg-black/40 z-30 flex items-center justify-center p-4";
-      const p = state.selectedPolicy;
-
-      modal.innerHTML = `
-        <div class="bg-[#FAF8F5] w-full rounded-2xl p-5 space-y-3 border border-[#D5CFC0] shadow-lg max-h-[80%] overflow-y-auto">
-          <div class="flex justify-between items-start">
-            <h3 class="text-2xl font-bold text-[#2A3B2C] hand-font">${p.title}</h3>
-            <button onclick="closeModal()" class="text-gray-400 text-xl font-bold">✕</button>
-          </div>
-          <p class="text-base text-gray-700 hand-font">${p.desc}</p>
-          <div class="bg-white p-3 rounded-xl border border-[#EAE6DF] space-y-1.5 text-base hand-font">
-            <p class="text-[#3B5E3C]"><b>담당 기관:</b> ${p.org}</p>
-            <p><b>지원 대상:</b> ${p.target}</p>
-            <p><b>신청 방법:</b> ${p.method}</p>
-          </div>
-          <button onclick="speakText('${p.title}. ${p.desc}'); alert('신청 안내가 완료되었습니다.'); closeModal();" class="w-full py-3 bg-[#3B5E3C] text-white rounded-xl text-lg font-bold hand-font shadow-md">
-            복이가 직접 신청 도와주기
-          </button>
-        </div>
-      `;
-      return modal;
-    }
-
-    // --- 이벤트 핸들러 함수들 ---
-    function switchTab(tab) {
-      state.activeTab = tab;
-      render();
-    }
-
-    function setGender(g) {
-      state.userProfile.gender = g;
-      render();
-    }
-
-    function setNeedsHelp(h) {
-      state.userProfile.needsHelp = h;
-      render();
-    }
-
-    function toggleVoiceSupport() {
-      state.userProfile.voiceSupport = !state.userProfile.voiceSupport;
-      render();
-    }
-
-    function saveProfile() {
-      const name = document.getElementById('prof-name').value;
-      const age = document.getElementById('prof-age').value;
-      const region = document.getElementById('prof-region').value;
-
-      state.userProfile.name = name || '어르신';
-      state.userProfile.age = age;
-      state.userProfile.region = region;
-
-      speakText(`${state.userProfile.name} 어르신의 프로필 정보가 저장되었습니다.`);
-      switchTab('browse');
-    }
-
-    function sendMessage() {
-      const input = document.getElementById('chat-input');
-      const val = input ? input.value.trim() : '';
-      if (!val) return;
-      handleUserSend(val);
-    }
-
-    function handleUserSend(text) {
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const timeStr = `${hours >= 12 ? '오후' : '오전'} ${hours % 12 || 12}:${minutes < 10 ? '0' : ''}${minutes}`;
-
-      state.messages.push({
-        id: Date.now(),
-        sender: 'user',
-        text: text,
-        time: timeStr
-      });
-      render();
-
-      // 인공지능 복이 자동 답변 생성
-      setTimeout(() => {
-        let replyText = `${state.userProfile.name || '어르신'}, 문의하신 "${text}" 내용에 대해 지원받으실 수 있는 맞춤 복지 정보를 찾아보았어요!`;
-        let cardData = null;
-
-        if (text.includes("바퀴") || text.includes("휠체어") || text.includes("다리")) {
-          replyText = "아! 전동휠체어나 실버카 지원을 말씀하시는군요? 어르신 상황에 맞는 보장구 지원 정책이 있습니다!";
-          cardData = { title: "노인 보조기구 지원사업", desc: "정부 지원금 최대 90%" };
-        } else if (text.includes("돈") || text.includes("연금") || text.includes("생활비")) {
-          replyText = "매월 정기적으로 지급되는 기초연금 신청 대상이신지 확인해 드릴까요?";
-          cardData = { title: "기초연금 지급 신청", desc: "매월 최대 33.4만원 지원" };
-        }
-
-        state.messages.push({
-          id: Date.now() + 1,
-          sender: 'boki',
-          text: replyText,
-          time: timeStr,
-          card: cardData
-        });
-
-        speakText(replyText);
-        render();
-      }, 700);
-    }
-
-    function openPolicy(id) {
-      const policies = {
-        1: { title: "기초연금 정기 지급", desc: "65세 이상 어르신들의 안정적인 노후생활을 위해 매월 정부에서 지급하는 지원금입니다.", org: "보건복지부", target: "만 65세 이상 어르신 중 소득 하위 70%", method: "주민센터 방문 신청" },
-        2: { title: "노인 무료 인공관절 수술비", desc: "무릎 관절염으로 고통받는 어르신들에게 수술비 본인부담금을 지원합니다.", org: "보건소 / 노인의료나눔재단", target: "만 60세 이상 저소득층 어르신", method: "보건소 방문 접수" },
-        3: { title: "어르신 일자리 사업", desc: "어르신이 활기차고 건강한 노후생활을 영위할 수 있도록 맞춤 일자리를 지원합니다.", org: "지역 노인복지관", target: "만 60세~65세 이상", method: "복지관 현장 접수" }
+      const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       };
-      state.selectedPolicy = policies[id];
-      render();
-    }
 
-    function closeModal() {
-      state.selectedPolicy = null;
-      render();
-    }
+      useEffect(() => {
+        scrollToBottom();
+      }, [messages, loading]);
 
-    // 최초 실행
-    render();
+      const handleSend = async () => {
+        if (!input.trim() || loading) return;
+        const userMsg = input;
+        setInput('');
+        setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
+        setLoading(true);
+
+        try {
+          const prompt = `너는 어르신을 돕는 친절한 손주 같은 AI 지원 어시스트 '복이'야. 절대 '멍멍' 같은 소리는 쓰지마.
+          어르신이 '아 그 왜 바퀴 달리고 막 가고 하는 거 있잖아' 처럼 모호하게 말해도 친절하게 공감하며 어떤 제품이나 정책(예: 전동휠체어, 실버카, 노인 보행보조기 지원 등)을 말하는 것인지 파악해서 '아! 00 말씀이시군요! 그거는 ~~ 이런 정책이 있어서 지원돼요' 형태로 다정하게 답해줘.
+          또한 답변 끝에 만약 신청서 생성이 필요하다고 판단되면 [APPLY: 정책명] 형식으로 태그를 달아줘.
+          어르신 정보: 이름 ${userProfile.name}, 나이 ${userProfile.age}, 지역 ${userProfile.region}.
+          어르신의 질문: "${userMsg}"`;
+
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+          });
+          const data = await res.json();
+          let replyText = data.text || "죄송해요 어르신, 다시 한번 말씀해주시겠어요?";
+          
+          let hasApply = false;
+          let policyName = "";
+          if (replyText.includes('[APPLY:')) {
+            const match = replyText.match(/\[APPLY:\s*(.*?)\]/);
+            if (match) {
+              policyName = match[1];
+              replyText = replyText.replace(/\[APPLY:\s*.*?\]/, '').trim();
+              hasApply = true;
+            }
+          }
+
+          setMessages(prev => [
+            ...prev, 
+            { 
+              sender: 'boki', 
+              text: replyText,
+              showFormBtn: hasApply,
+              policyName: policyName || "보행 보조기구 지원사업"
+            }
+          ]);
+        } catch (e) {
+          setMessages(prev => [...prev, { sender: 'boki', text: "어르신, 잠시 연결이 불안정해요. 다시 말씀해 주시겠어요?" }]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="flex-1 flex flex-col h-screen pb-24">
+          <Header title="Chat" />
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="text-center my-2">
+              <span className="bg-[#EAE6DF] text-gray-600 text-lg px-4 py-1 rounded-full hand-font">
+                오늘대화
+              </span>
+            </div>
+
+            {messages.map((m, i) => (
+              <div key={i} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'} gap-2`}>
+                {m.sender === 'boki' && <BokiAvatar className="w-10 h-10 flex-shrink-0" />}
+                <div className={`p-4 rounded-3xl text-xl hand-font max-w-[80%] ${m.sender === 'user' ? 'bg-[#789975] text-white rounded-tr-none' : 'bg-white text-gray-800 border border-[#EAE6DF] rounded-tl-none shadow-sm'}`}>
+                  <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
+                  
+                  {m.showFormBtn && (
+                    <div className="mt-4 pt-3 border-t border-gray-100">
+                      <button 
+                        onClick={() => setApplicationForm({ policyName: m.policyName })}
+                        className="w-full py-3 bg-[#8C6D3B] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-sm"
+                      >
+                        <i data-lucide="file-text" className="w-5 h-5"></i> 신청 서류 작성하기
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex justify-start gap-2">
+                <BokiAvatar className="w-10 h-10 flex-shrink-0" />
+                <div className="bg-white p-4 rounded-3xl text-xl hand-font border border-[#EAE6DF] text-gray-500">
+                  복이가 생각 중이에요...
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* 입력 창 */}
+          <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[430px] p-3 bg-[#FAF8F5] border-t border-[#EAE6DF]">
+            <div className="flex gap-2 items-center bg-white p-2 rounded-full border border-[#D5CFC0] shadow-sm">
+              <input 
+                type="text" 
+                value={input} 
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                placeholder="복이에게 편하게 말씀하세요..." 
+                className="flex-1 px-4 text-xl hand-font focus:outline-none bg-transparent"
+              />
+              <button 
+                onClick={handleSend}
+                className="w-12 h-12 bg-[#3B5E3C] text-white rounded-full flex items-center justify-center font-bold flex-shrink-0"
+              >
+                <i data-lucide="send" className="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+
+          {/* 신청서 모달 */}
+          {applicationForm && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-[#FAF8F5] w-full max-w-[390px] rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-3xl font-bold text-[#2A3B2C] hand-font">자동 작성된 신청서</h3>
+                  <button onClick={() => setApplicationForm(null)} className="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" className="w-7 h-7"></i>
+                  </button>
+                </div>
+
+                <div className="bg-white p-4 rounded-2xl border border-[#EAE6DF] space-y-3 hand-font text-xl">
+                  <div><span className="text-gray-500">신청 지원명:</span> <p className="font-bold text-[#3B5E3C]">{applicationForm.policyName}</p></div>
+                  <div><span className="text-gray-500">신청자 성함:</span> <p className="font-bold">{userProfile.name}</p></div>
+                  <div><span className="text-gray-500">연락처/나이:</span> <p className="font-bold">{userProfile.age}세</p></div>
+                  <div><span className="text-gray-500">거주지역:</span> <p className="font-bold">{userProfile.region}</p></div>
+                  <div><span className="text-gray-500">특이사항:</span> <p className="font-bold">{userProfile.disabled ? '신체적 불편함(장애) 있음' : '없음'}</p></div>
+                </div>
+
+                <p className="text-lg text-gray-600 hand-font text-center">복이가 어르신의 프로필 정보를 바탕으로 신청서를 준비해두었습니다.</p>
+
+                <button 
+                  onClick={() => {
+                    alert('신청서 제출이 완료되었습니다! 복이가 접수 현황을 알려드릴게요.');
+                    setApplicationForm(null);
+                  }}
+                  className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md"
+                >
+                  제출 완료하기
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [started, setStarted] = useState(false);
+      const [activeTab, setActiveTab] = useState('browse');
+      const [userProfile, setUserProfile] = useState({
+        name: '김복순',
+        age: '72',
+        gender: '여성',
+        region: '서울특별시',
+        disabled: false,
+        voiceSupport: true
+      });
+
+      if (!started) {
+        return <SplashScreen onStart={() => setStarted(true)} />;
+      }
+
+      return (
+        <div className="flex-1 flex flex-col">
+          {activeTab === 'profile' && (
+            <ProfileScreen 
+              userProfile={userProfile} 
+              setUserProfile={setUserProfile} 
+              onSave={() => setActiveTab('browse')} 
+            />
+          )}
+          {activeTab === 'browse' && (
+            <BrowseScreen 
+              userProfile={userProfile} 
+              onOpenChat={() => setActiveTab('chat')} 
+            />
+          )}
+          {activeTab === 'chat' && (
+            <ChatScreen userProfile={userProfile} />
+          )}
+          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
