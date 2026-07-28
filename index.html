@@ -360,4 +360,412 @@
           const data = await res.json();
           let jsonText = data.text.trim();
           if (jsonText.startsWith('```json')) {
-            jsonText = jsonText.replace(/^
+            jsonText = jsonText.replace(/^```json/, '').replace(/```$/, '').trim();
+          } else if (jsonText.startsWith('```')) {
+            jsonText = jsonText.replace(/^```/, '').replace(/```$/, '').trim();
+          }
+          const parsed = JSON.parse(jsonText);
+          setPolicies(parsed);
+        } catch (e) {
+          setPolicies([
+            { id: 1, tag: "인기 혜택", title: "기초연금 지급 안내", shortDesc: "매월 최대 33만 4천원의 생활보조금을 지원합니다.", org: "보건복지부 / 주민센터", eligibility: "만 65세 이상 어르신", period: "상시 신청" },
+            { id: 2, tag: "건강 지원", title: "노인 무료 인공관절 수술비 지원", shortDesc: "수술비 본인 부담금 중 최대 120만원까지 지급합니다.", org: "관할 보건소", eligibility: "만 60세 이상 저소득층", period: "예산 소진 시까지" },
+            { id: 3, tag: "생활 지원", title: "어르신 맞춤형 보행보조기 지원", shortDesc: "안전한 외출을 위한 보행보조기 구입비를 지원합니다.", org: "지자체 복지과", eligibility: "거동이 불편하신 어르신", period: "상시 접수" },
+            { id: 4, tag: "일자리", title: "어르신 사회활동 지원사업", shortDesc: "가까운 복지관에서 건강한 일거리를 찾아드립니다.", org: "노인복지관", eligibility: "만 60세~65세 이상 어르신", period: "연중 모집" }
+          ]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="flex-1 flex flex-col pb-24 bg-slate-50">
+          <Header title="맞춤 혜택 찾아보기" userProfile={userProfile} />
+          <div className="p-5 space-y-5 overflow-y-auto">
+            {/* 배너 */}
+            <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-6 rounded-3xl shadow-md">
+              <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">맞춤 복지 리포트</span>
+              <h2 className="text-2xl font-extrabold mt-3 mb-1">
+                {userProfile.name} 어르신을 위한<br/>추천 복지 혜택입니다
+              </h2>
+              <p className="text-emerald-100 text-sm mt-1">연령 및 지역 정보에 맞춘 최신 소식이에요.</p>
+            </div>
+
+            {/* 정책 리스트 */}
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
+                <i data-lucide="sparkles" className="w-5 h-5 text-emerald-600"></i> 어르신 추천 리스트
+              </h3>
+
+              {loading ? (
+                <div className="p-10 text-center text-slate-500 font-medium">
+                  <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                  어르신께 알맞은 혜택을 검색하고 있습니다...
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {policies.map((p) => (
+                    <div 
+                      key={p.id} 
+                      onClick={() => setSelectedPolicy(p)} 
+                      className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm cursor-pointer hover:border-emerald-500 hover:shadow-md transition-all"
+                    >
+                      {p.tag && (
+                        <span className="inline-block bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-md mb-2">
+                          {p.tag}
+                        </span>
+                      )}
+                      <h4 className="text-lg font-bold text-slate-900 mb-1">{p.title}</h4>
+                      <p className="text-sm text-slate-600 mb-3">{p.shortDesc}</p>
+                      <div className="text-xs font-bold text-emerald-600 flex items-center gap-1">
+                        자세히 내용 보기 <i data-lucide="chevron-right" className="w-4 h-4"></i>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* AI 대화 유도 */}
+            <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl text-center space-y-3">
+              <p className="text-base font-bold text-emerald-900">찾으시는 혜택이 없으신가요?</p>
+              <button 
+                onClick={onOpenChat} 
+                className="w-full py-3.5 bg-emerald-600 text-white rounded-xl text-base font-bold shadow-md hover:bg-emerald-700 transition-all flex items-center justify-center gap-2"
+              >
+                <i data-lucide="message-square" className="w-5 h-5"></i> 복이에게 말로 물어보기
+              </button>
+            </div>
+          </div>
+
+          {/* 정책 상세 모달 */}
+          {selectedPolicy && (
+            <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+              <div className="bg-white w-full max-w-sm rounded-3xl p-6 space-y-5 max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-200">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-xl font-extrabold text-slate-900 leading-snug">{selectedPolicy.title}</h3>
+                  <button onClick={() => setSelectedPolicy(null)} className="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" className="w-6 h-6"></i>
+                  </button>
+                </div>
+                <p className="text-base text-slate-700 leading-relaxed">{selectedPolicy.shortDesc}</p>
+                <div className="bg-slate-50 p-4 rounded-xl space-y-2 text-sm text-slate-700 border border-slate-200">
+                  <div><span className="font-bold text-slate-900">담당 기관:</span> {selectedPolicy.org || '주민센터'}</div>
+                  <div><span className="font-bold text-slate-900">지원 대상:</span> {selectedPolicy.eligibility || '해당 연령 어르신'}</div>
+                  <div><span className="font-bold text-slate-900">신청 기간:</span> {selectedPolicy.period || '상시'}</div>
+                </div>
+                <button 
+                  onClick={() => {
+                    alert('복이가 대화창에서 안내해 드립니다.');
+                    setSelectedPolicy(null);
+                    onOpenChat();
+                  }}
+                  className="w-full py-4 bg-emerald-600 text-white rounded-xl text-base font-bold shadow-md hover:bg-emerald-700 transition-all"
+                >
+                  이 혜택에 대해 더 알아보기
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // AI 대화하기 화면 (음성인식 STT + 음성출력 TTS 완벽 구현)
+    const ChatScreen = ({ userProfile }) => {
+      const [messages, setMessages] = useState([
+        { 
+          sender: 'boki', 
+          text: `안녕하세요 ${userProfile.name} 어르신! AI 복지 도우미 복이입니다. 정확한 이름을 모르셔도 편하게 말씀해 주시면 알맞은 혜택을 찾아드리겠습니다.` 
+        }
+      ]);
+      const [input, setInput] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [isListening, setIsListening] = useState(false);
+      const [applicationForm, setApplicationForm] = useState(null);
+      const messagesEndRef = useRef(null);
+
+      const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      };
+
+      useEffect(() => {
+        scrollToBottom();
+      }, [messages, loading]);
+
+      // 음성 읽기 (TTS)
+      const speakText = (text) => {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'ko-KR';
+          utterance.rate = 0.9; // 어르신을 위해 약간 천천히
+          window.speechSynthesis.speak(utterance);
+        }
+      };
+
+      // 음성 인식 (STT)
+      const startListening = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+          alert('이 브라우저는 음성 인식을 지원하지 않습니다. 크롬 브라우저를 이용해 주세요.');
+          return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ko-KR';
+        recognition.interimResults = false;
+
+        recognition.onstart = () => {
+          setIsListening(true);
+        };
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          setInput(transcript);
+          setIsListening(false);
+        };
+
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          setIsListening(false);
+          alert('음성을 인식하지 못했습니다. 다시 말씀해 주세요.');
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognition.start();
+      };
+
+      const handleSend = async () => {
+        if (!input.trim() || loading) return;
+        const userMsg = input;
+        setInput('');
+        setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
+        setLoading(true);
+
+        try {
+          const prompt = `너는 어르신의 복지 혜택을 친절하게 안내하는 전문 AI 도우미 '복이'야. 절대 '멍멍' 소리나 '손주'라는 단어를 사용하지 마.
+          어르신이 '바퀴 달린 보행 보조기구'나 모호하게 말씀하시더라도 다정하고 명확하게 어떤 정책(예: 노인 보행보조기 지원, 기초연금 등)인지 설명해줘.
+          만약 대화 중 신청서 작성이 필요하다고 생각되면 [APPLY: 정책명] 태그를 답변 끝에 포함해줘.
+          어르신 정보: 이름 ${userProfile.name}, 나이 ${userProfile.age}세, 지역 ${userProfile.region}.
+          어르신 질문: "${userMsg}"`;
+
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+          });
+          const data = await res.json();
+          let replyText = data.text || "죄송합니다 어르신, 다시 한번 말씀해 주시겠어요?";
+          
+          let hasApply = false;
+          let policyName = "";
+          if (replyText.includes('[APPLY:')) {
+            const match = replyText.match(/\[APPLY:\s*(.*?)\]/);
+            if (match) {
+              policyName = match[1];
+              replyText = replyText.replace(/\[APPLY:\s*.*?\]/, '').trim();
+              hasApply = true;
+            }
+          }
+
+          setMessages(prev => [
+            ...prev, 
+            { 
+              sender: 'boki', 
+              text: replyText,
+              showFormBtn: hasApply,
+              policyName: policyName || "노인 복지 지원사업"
+            }
+          ]);
+
+          if (userProfile.voiceSupport) {
+            speakText(replyText);
+          }
+        } catch (e) {
+          setMessages(prev => [...prev, { sender: 'boki', text: "네트워크 연결이 불안정합니다. 잠시 후 다시 말씀해 주세요." }]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="flex-1 flex flex-col h-screen pb-24 bg-slate-50">
+          <Header title="복이와 대화하기" userProfile={userProfile} />
+          
+          {/* 메시지 영역 */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="text-center my-2">
+              <span className="bg-slate-200 text-slate-600 text-xs font-bold px-3 py-1 rounded-full">
+                AI 복지 상담실
+              </span>
+            </div>
+
+            {messages.map((m, i) => (
+              <div key={i} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'} gap-2.5`}>
+                {m.sender === 'boki' && <BokiAvatar className="w-10 h-10 flex-shrink-0" />}
+                <div className={`p-4 rounded-2xl text-base max-w-[80%] shadow-sm ${m.sender === 'user' ? 'bg-emerald-600 text-white rounded-tr-none font-medium' : 'bg-white text-slate-800 border border-slate-200 rounded-tl-none'}`}>
+                  <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
+                  
+                  {m.sender === 'boki' && (
+                    <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <button 
+                        onClick={() => speakText(m.text)}
+                        className="text-xs text-emerald-700 font-bold flex items-center gap-1 hover:underline"
+                      >
+                        <i data-lucide="volume-2" className="w-4 h-4"></i> 음성으로 듣기
+                      </button>
+                    </div>
+                  )}
+
+                  {m.showFormBtn && (
+                    <div className="mt-3 pt-3 border-t border-slate-100">
+                      <button 
+                        onClick={() => setApplicationForm({ policyName: m.policyName })}
+                        className="w-full py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm hover:bg-emerald-700"
+                      >
+                        <i data-lucide="file-text" className="w-4 h-4"></i> 간편 신청서 작성
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {loading && (
+              <div className="flex justify-start gap-2.5">
+                <BokiAvatar className="w-10 h-10 flex-shrink-0" />
+                <div className="bg-white p-4 rounded-2xl border border-slate-200 text-slate-500 text-sm flex items-center gap-2 shadow-sm">
+                  <div className="w-4 h-4 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+                  복이가 알맞은 답변을 생각하고 있습니다...
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* 하단 입력 창 (마이크 기능 강화) */}
+          <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[440px] p-3 bg-white border-t border-slate-200 shadow-lg">
+            <div className="flex gap-2 items-center">
+              {/* 마이크 버튼 */}
+              <button
+                type="button"
+                onClick={startListening}
+                className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold flex-shrink-0 transition-all ${isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}`}
+                title="음성으로 말하기"
+              >
+                <i data-lucide={isListening ? "mic-off" : "mic"} className="w-6 h-6"></i>
+              </button>
+
+              <input 
+                type="text" 
+                value={input} 
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                placeholder={isListening ? "듣고 있습니다... 말씀해 주세요" : "복이에게 궁금한 내용을 입력하세요..."} 
+                className="flex-1 p-3 border border-slate-300 rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-slate-50"
+              />
+
+              <button 
+                type="button"
+                onClick={handleSend}
+                className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold flex-shrink-0 hover:bg-emerald-700 transition-all"
+              >
+                <i data-lucide="send" className="w-5 h-5"></i>
+              </button>
+            </div>
+            {isListening && (
+              <p className="text-center text-xs text-red-500 font-bold mt-1 animate-pulse">음성을 인식하고 있습니다...</p>
+            )}
+          </div>
+
+          {/* 자동 신청서 모달 */}
+          {applicationForm && (
+            <div className="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+              <div className="bg-white w-full max-w-sm rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-200">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-xl font-extrabold text-slate-900">간편 신청 양식</h3>
+                  <button onClick={() => setApplicationForm(null)} className="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" className="w-6 h-6"></i>
+                  </button>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2 text-sm text-slate-700">
+                  <div><span className="text-slate-500 font-bold">신청 항목:</span> <p className="font-bold text-emerald-700 text-base">{applicationForm.policyName}</p></div>
+                  <div><span className="text-slate-500 font-bold">신청인:</span> <p className="font-bold">{userProfile.name}</p></div>
+                  <div><span className="text-slate-500 font-bold">연령/거주지:</span> <p className="font-bold">만 {userProfile.age}세 / {userProfile.region}</p></div>
+                  <div><span className="text-slate-500 font-bold">참고사항:</span> <p className="font-bold">{userProfile.disabled ? '거동 불편 사항 있음' : '특이사항 없음'}</p></div>
+                </div>
+
+                <p className="text-xs text-slate-500 text-center leading-relaxed">
+                  등록해주신 내 정보를 바탕으로 작성되었습니다.<br/>[제출하기]를 누르시면 관할 주민센터로 연결됩니다.
+                </p>
+
+                <button 
+                  onClick={() => {
+                    alert('신청서 제출이 완료되었습니다! 담당자가 확인 후 연락드립니다.');
+                    setApplicationForm(null);
+                  }}
+                  className="w-full py-4 bg-emerald-600 text-white rounded-xl text-base font-bold shadow-md hover:bg-emerald-700 transition-all"
+                >
+                  제출하기
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // 메인 앱
+    const App = () => {
+      const [isLoggedIn, setIsLoggedIn] = useState(false);
+      const [activeTab, setActiveTab] = useState('browse');
+      const [userProfile, setUserProfile] = useState({
+        name: '김복순',
+        age: '72',
+        gender: '여성',
+        region: '서울특별시',
+        disabled: false,
+        voiceSupport: true
+      });
+
+      const handleLoginSuccess = (name) => {
+        setUserProfile(prev => ({ ...prev, name: name || '어르신' }));
+        setIsLoggedIn(true);
+      };
+
+      if (!isLoggedIn) {
+        return <SplashScreen onLoginSuccess={handleLoginSuccess} />;
+      }
+
+      return (
+        <div className="flex-1 flex flex-col">
+          {activeTab === 'browse' && (
+            <BrowseScreen 
+              userProfile={userProfile} 
+              onOpenChat={() => setActiveTab('chat')} 
+            />
+          )}
+          {activeTab === 'chat' && (
+            <ChatScreen userProfile={userProfile} />
+          )}
+          {activeTab === 'profile' && (
+            <ProfileScreen 
+              userProfile={userProfile} 
+              setUserProfile={setUserProfile} 
+              onSave={() => setActiveTab('browse')} 
+            />
+          )}
+          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
