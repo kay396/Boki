@@ -44,7 +44,7 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // 강아지 캐릭터 SVG
+    // 강아지 캐릭터 SVG (복이)
     const BokiAvatar = ({ className = "w-12 h-12" }) => (
       <div className={`bg-[#F5F2EA] rounded-full flex items-center justify-center border border-[#D0C9B8] overflow-hidden p-1 ${className}`}>
         <svg viewBox="0 0 100 100" className="w-full h-full">
@@ -92,7 +92,7 @@
       );
     };
 
-    // 스플래시 (초기 시작) 화면 + 회원가입 기능
+    // 스플래시 (초기 시작) 화면 + 회원가입 모달 기능
     const SplashScreen = ({ onStart, onSignUp }) => {
       const [showSignUp, setShowSignUp] = useState(false);
       const [signUpData, setSignUpData] = useState({
@@ -124,18 +124,15 @@
             </div>
             <h2 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-1">안녕하세요!</h2>
             <h1 className="text-3xl font-bold text-[#3B5E3C] hand-font mb-4">손주같은 복이가<br/>도와드릴게요</h1>
-            <p className="text-xl text-gray-600 hand-font">어려운 휴대폰 사용,<br/>복이와 함께라면 쉽고 즐거워요.</p>
+            <p className="text-xl text-gray-600 hand-font">어려운 복지 신청,<br/>복이와 함께라면 쉽고 즐거워요.</p>
           </div>
 
           <div className="w-full space-y-3 mb-8">
-            <button onClick={onStart} className="w-full py-4 bg-[#3B5E3C] text-white rounded-3xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md hover:bg-[#2e4a2f]">
-              시작하기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
-            </button>
-            <button onClick={() => setShowSignUp(true)} className="w-full py-3.5 bg-[#8C6D3B] text-white rounded-3xl text-xl font-bold hand-font flex items-center justify-center gap-2 shadow-sm">
-              <i data-lucide="user-plus" className="w-5 h-5"></i> 회원가입 하기
+            <button onClick={() => setShowSignUp(true)} className="w-full py-4 bg-[#3B5E3C] text-white rounded-3xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md hover:bg-[#2e4a2f]">
+              <i data-lucide="user-plus" className="w-6 h-6"></i> 회원가입 하고 시작하기
             </button>
             <button onClick={onStart} className="w-full py-3 bg-[#EAE6DF] text-gray-700 rounded-3xl text-xl font-bold hand-font">
-              이미 계정이 있어요 (로그인)
+              가입 없이 바로 둘러보기
             </button>
           </div>
 
@@ -369,26 +366,19 @@
         setLoading(true);
         try {
           const prompt = `사용자 프로필: Name: ${userProfile.name}, Age: ${userProfile.age}, Gender: ${userProfile.gender}, Region: ${userProfile.region}, Disabled: ${userProfile.disabled ? '예' : '아니오'}. 
-          이 어르신에게 맞는 맞춤형 복지 정책 4개를 추천해주세요. JSON 배열 형식으로만 응답하세요. 다른 설명 텍스트는 제외하세요.
-          형식:
-          [
-            {
-              "id": 1,
-              "tag": "마감 임박",
-              "title": "기초연금 정기 지급 안내",
-              "shortDesc": "매월 최대 33만원의 생활비를 지원받으실 수 있습니다.",
-              "org": "보건복지부",
-              "eligibility": "만 65세 이상 및 소득인정액 기준 하위 70%",
-              "period": "상시 신청 가능"
-            }
-          ]`;
+          이 어르신에게 맞는 맞춤형 복지 정책 4개를 추천해주세요. JSON 배열 형식으로만 응답하세요.다른 설명 텍스트는 제외하세요.`;
 
           const res = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt })
           });
+          
+          if (!res.ok) throw new Error("API response error");
+
           const data = await res.json();
           let jsonText = data.text.trim();
           if (jsonText.startsWith('```json')) {
+            jsonText = jsonText.replace(/^```json/, '').replace(/```$/, '').trim();
+          } else if (jsonText.startsWith('```')) {
             jsonText = jsonText.replace(/^
