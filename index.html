@@ -1,605 +1,394 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>복이 - 손주같은 복지 도우미</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    body {
-      font-family: 'Gamja Flower', 'Noto Sans KR', cursive, sans-serif;
-      background-color: #f7f6f0;
-      color: #2c3e50;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-    }
-    .app-container {
-      width: 100%;
-      max-width: 430px;
-      min-height: 100vh;
-      background-color: #FAF8F5;
-      position: relative;
-      box-shadow: 0 0 20px rgba(0,0,0,0.05);
-      display: flex;
-      flex-direction: column;
-    }
-    .hand-font { font-family: 'Gamja Flower', cursive; }
-    .noto-font { font-family: 'Noto Sans KR', sans-serif; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>복이 - 손주같은 복지 도우미</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gamja+Flower&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: 'Gamja Flower', 'Noto Sans KR', cursive, sans-serif;
+      background-color: #f7f6f0;
+      color: #2c3e50;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .app-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background-color: #FAF8F5;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+    }
+    .hand-font { font-family: 'Gamja Flower', cursive; }
+    .noto-font { font-family: 'Noto Sans KR', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
 </head>
 <body>
-  <div id="root" class="app-container"></div>
+  <div id="root" class="app-container"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-    // 강아지 캐릭터 SVG
-    const BokiAvatar = ({ className = "w-12 h-12" }) => (
-      <div className={`bg-[#F5F2EA] rounded-full flex items-center justify-center border border-[#D0C9B8] overflow-hidden p-1 ${className}`}>
-        <svg viewBox="0 0 100 100" className="w-full h-full">
-          <path d="M 25 35 C 10 35, 10 65, 25 60 Z" fill="#EADBC8" stroke="#2C3E50" strokeWidth="3.5" strokeLinejoin="round"/>
-          <path d="M 75 35 C 90 35, 90 65, 75 60 Z" fill="#EADBC8" stroke="#2C3E50" strokeWidth="3.5" strokeLinejoin="round"/>
-          <ellipse cx="50" cy="55" rx="32" ry="26" fill="#FFFDF9" stroke="#2C3E50" strokeWidth="3.5"/>
-          <circle cx="38" cy="45" r="4" fill="#2C3E50"/>
-          <circle cx="62" cy="45" r="4" fill="#2C3E50"/>
-          <ellipse cx="50" cy="52" rx="5" ry="4" fill="#2C3E50"/>
-          <path d="M 45 58 Q 50 63 55 58" fill="none" stroke="#2C3E50" strokeWidth="3.5" strokeLinecap="round"/>
-        </svg>
-      </div>
-    );
+    // 강아지 캐릭터 SVG
+    const BokiAvatar = ({ className = "w-12 h-12" }) => (
+      <div className={`bg-[#F5F2EA] rounded-full flex items-center justify-center border border-[#D0C9B8] overflow-hidden p-1 ${className}`}>
+        <svg viewBox="0 0 100 100" className="w-full h-full">
+          <path d="M 25 35 C 10 35, 10 65, 25 60 Z" fill="#EADBC8" stroke="#2C3E50" strokeWidth="3.5" strokeLinejoin="round"/>
+          <path d="M 75 35 C 90 35, 90 65, 75 60 Z" fill="#EADBC8" stroke="#2C3E50" strokeWidth="3.5" strokeLinejoin="round"/>
+          <ellipse cx="50" cy="55" rx="32" ry="26" fill="#FFFDF9" stroke="#2C3E50" strokeWidth="3.5"/>
+          <circle cx="38" cy="45" r="4" fill="#2C3E50"/>
+          <circle cx="62" cy="45" r="4" fill="#2C3E50"/>
+          <ellipse cx="50" cy="52" rx="5" ry="4" fill="#2C3E50"/>
+          <path d="M 45 58 Q 50 63 55 58" fill="none" stroke="#2C3E50" strokeWidth="3.5" strokeLinecap="round"/>
+        </svg>
+      </div>
+    );
 
-    const Header = ({ title }) => (
-      <div className="flex items-center justify-between px-5 py-4 bg-[#FAF8F5] border-b border-[#EAE6DF] sticky top-0 z-10">
-        <div className="flex items-center gap-2">
-          <BokiAvatar className="w-10 h-10" />
-          <span className="text-2xl font-bold text-[#3B5E3C] hand-font">복이</span>
-        </div>
-        <h1 className="text-2xl font-bold text-[#2A3B2C] hand-font">{title}</h1>
-        <div className="w-10 h-10 rounded-full bg-[#3B5E3C] flex items-center justify-center text-white">
-          <i data-lucide="user" className="w-5 h-5"></i>
-        </div>
-      </div>
-    );
+    const Header = ({ title }) => (
+      <div className="flex items-center justify-between px-5 py-4 bg-[#FAF8F5] border-b border-[#EAE6DF] sticky top-0 z-10">
+        <div className="flex items-center gap-2">
+          <BokiAvatar className="w-10 h-10" />
+          <span className="text-2xl font-bold text-[#3B5E3C] hand-font">복이</span>
+        </div>
+        <h1 className="text-2xl font-bold text-[#2A3B2C] hand-font">{title}</h1>
+        <div className="w-10 h-10 rounded-full bg-[#3B5E3C] flex items-center justify-center text-white">
+          <i data-lucide="user" className="w-5 h-5"></i>
+        </div>
+      </div>
+    );
 
-    const BottomNav = ({ activeTab, setActiveTab }) => {
-      useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [activeTab]);
-      return (
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#FAF8F5] border-t border-[#EAE6DF] flex justify-around py-3 px-4 z-20">
-          <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 ${activeTab === 'profile' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
-            <i data-lucide="user" className="w-6 h-6"></i>
-            <span className="text-lg hand-font font-bold">프로필</span>
-          </button>
-          <button onClick={() => setActiveTab('browse')} className={`flex flex-col items-center gap-1 ${activeTab === 'browse' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
-            <i data-lucide="search" className="w-6 h-6"></i>
-            <span className="text-lg hand-font font-bold">찾아보기</span>
-          </button>
-          <button onClick={() => setActiveTab('chat')} className={`flex flex-col items-center gap-1 ${activeTab === 'chat' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
-            <i data-lucide="message-square" className="w-6 h-6"></i>
-            <span className="text-lg hand-font font-bold">대화하기</span>
-          </button>
-        </div>
-      );
-    };
+    const BottomNav = ({ activeTab, setActiveTab }) => {
+      useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [activeTab]);
+      return (
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#FAF8F5] border-t border-[#EAE6DF] flex justify-around py-3 px-4 z-20">
+          <button onClick={() => setActiveTab('profile')} className={`flex flex-col items-center gap-1 ${activeTab === 'profile' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
+            <i data-lucide="user" className="w-6 h-6"></i>
+            <span className="text-lg hand-font font-bold">프로필</span>
+          </button>
+          <button onClick={() => setActiveTab('browse')} className={`flex flex-col items-center gap-1 ${activeTab === 'browse' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
+            <i data-lucide="search" className="w-6 h-6"></i>
+            <span className="text-lg hand-font font-bold">찾아보기</span>
+          </button>
+          <button onClick={() => setActiveTab('chat')} className={`flex flex-col items-center gap-1 ${activeTab === 'chat' ? 'text-[#3B5E3C]' : 'text-gray-400'}`}>
+            <i data-lucide="message-square" className="w-6 h-6"></i>
+            <span className="text-lg hand-font font-bold">대화하기</span>
+          </button>
+        </div>
+      );
+    };
 
-    // 스플래시 (초기 시작) 화면
-    const SplashScreen = ({ onStart }) => {
-      useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, []);
-      return (
-        <div className="flex-1 flex flex-col items-center justify-between p-6 text-center bg-[#FAF8F5]">
-          <div className="w-full flex-1 flex flex-col items-center justify-center">
-            <div className="relative mb-6">
-              <div className="w-48 h-48 bg-[#F5F2EA] rounded-full flex items-center justify-center border-2 border-[#D0C9B8] p-4 shadow-sm">
-                <BokiAvatar className="w-36 h-36 border-none bg-transparent" />
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-1">안녕하세요!</h2>
-            <h1 className="text-3xl font-bold text-[#3B5E3C] hand-font mb-4">손주같은 복이가<br/>도와드릴게요</h1>
-            <p className="text-xl text-gray-600 hand-font">어려운 휴대폰 사용,<br/>복이와 함께라면 쉽고 즐거워요.</p>
-          </div>
-          <div className="w-full space-y-3 mb-8">
-            <button onClick={onStart} className="w-full py-4 bg-[#3B5E3C] text-white rounded-3xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md hover:bg-[#2e4a2f]">
-              시작하기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
-            </button>
-            <button onClick={onStart} className="w-full py-3 bg-[#EAE6DF] text-gray-700 rounded-3xl text-xl font-bold hand-font">
-              이미 계정이 있어요 (로그인)
-            </button>
-          </div>
-        </div>
-      );
-    };
+    // 스플래시 (초기 시작) 화면 + 회원가입 기능
+    const SplashScreen = ({ onStart, onSignUp }) => {
+      const [showSignUp, setShowSignUp] = useState(false);
+      const [signUpData, setSignUpData] = useState({
+        name: '',
+        age: '',
+        gender: '여성',
+        region: '서울특별시',
+        disabled: false
+      });
 
-    // 프로필 화면
-    const ProfileScreen = ({ userProfile, setUserProfile, onSave }) => {
-      const speak = (text) => {
-        if (userProfile.voiceSupport && 'speechSynthesis' in window) {
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'ko-KR';
-          window.speechSynthesis.speak(utterance);
-        }
-      };
+      useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [showSignUp]);
 
-      return (
-        <div className="flex-1 flex flex-col pb-24">
-          <Header title="프로필" />
-          <div className="p-5 space-y-5 overflow-y-auto">
-            <div className="flex flex-col items-center">
-              <BokiAvatar className="w-24 h-24 mb-3" />
-              <div className="bg-[#EAE6DF] p-4 rounded-2xl border border-[#D5CFC0] text-center w-full">
-                <p className="text-xl text-[#2A3B2C] hand-font">"안녕하세요! 저는 복이라고 해요. 어르신께 꼭 맞는 소식을 찾아드릴게요. 정보를 알려주시겠어요?"</p>
-              </div>
-            </div>
+      const handleSignUpSubmit = (e) => {
+        e.preventDefault();
+        if (!signUpData.name) {
+          alert('성함을 입력해주세요!');
+          return;
+        }
+        onSignUp(signUpData);
+      };
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성함이 어떻게 되시나요?</label>
-                <input 
-                  type="text" 
-                  value={userProfile.name} 
-                  onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })} 
-                  placeholder="이름을 입력해주세요"
-                  className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
-                />
-              </div>
+      return (
+        <div className="flex-1 flex flex-col items-center justify-between p-6 text-center bg-[#FAF8F5]">
+          <div className="w-full flex-1 flex flex-col items-center justify-center">
+            <div className="relative mb-6">
+              <div className="w-48 h-48 bg-[#F5F2EA] rounded-full flex items-center justify-center border-2 border-[#D0C9B8] p-4 shadow-sm">
+                <BokiAvatar className="w-36 h-36 border-none bg-transparent" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-1">안녕하세요!</h2>
+            <h1 className="text-3xl font-bold text-[#3B5E3C] hand-font mb-4">손주같은 복이가<br/>도와드릴게요</h1>
+            <p className="text-xl text-gray-600 hand-font">어려운 휴대폰 사용,<br/>복이와 함께라면 쉽고 즐거워요.</p>
+          </div>
 
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성별</label>
-                  <div className="flex gap-2 bg-[#EAE6DF] p-1 rounded-2xl">
-                    <button 
-                      onClick={() => setUserProfile({ ...userProfile, gender: '남성' })} 
-                      className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${userProfile.gender === '남성' ? 'bg-white shadow' : 'text-gray-600'}`}
-                    >남성</button>
-                    <button 
-                      onClick={() => setUserProfile({ ...userProfile, gender: '여성' })} 
-                      className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${userProfile.gender === '여성' ? 'bg-white shadow' : 'text-gray-600'}`}
-                    >여성</button>
-                  </div>
-                </div>
+          <div className="w-full space-y-3 mb-8">
+            <button onClick={onStart} className="w-full py-4 bg-[#3B5E3C] text-white rounded-3xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md hover:bg-[#2e4a2f]">
+              시작하기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
+            </button>
+            <button onClick={() => setShowSignUp(true)} className="w-full py-3.5 bg-[#8C6D3B] text-white rounded-3xl text-xl font-bold hand-font flex items-center justify-center gap-2 shadow-sm">
+              <i data-lucide="user-plus" className="w-5 h-5"></i> 회원가입 하기
+            </button>
+            <button onClick={onStart} className="w-full py-3 bg-[#EAE6DF] text-gray-700 rounded-3xl text-xl font-bold hand-font">
+              이미 계정이 있어요 (로그인)
+            </button>
+          </div>
 
-                <div className="flex-1">
-                  <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">나이</label>
-                  <input 
-                    type="number" 
-                    value={userProfile.age} 
-                    onChange={(e) => setUserProfile({ ...userProfile, age: e.target.value })} 
-                    placeholder="예: 72"
-                    className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
-                  />
-                </div>
-              </div>
+          {/* 회원가입 모달 */}
+          {showSignUp && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+              <div className="bg-[#FAF8F5] w-full max-w-[390px] rounded-3xl p-6 text-left space-y-4 max-h-[85vh] overflow-y-auto">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-3xl font-bold text-[#2A3B2C] hand-font">복이 회원가입</h3>
+                  <button onClick={() => setShowSignUp(false)} className="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" className="w-7 h-7"></i>
+                  </button>
+                </div>
 
-              <div>
-                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">어디에 살고 계신가요?</label>
-                <select 
-                  value={userProfile.region} 
-                  onChange={(e) => setUserProfile({ ...userProfile, region: e.target.value })}
-                  className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
-                >
-                  <option value="서울특별시">서울특별시</option>
-                  <option value="경기도">경기도</option>
-                  <option value="부산광역시">부산광역시</option>
-                  <option value="대구광역시">대구광역시</option>
-                  <option value="인천광역시">인천광역시</option>
-                  <option value="광주광역시">광주광역시</option>
-                  <option value="대전광역시">대전광역시</option>
-                  <option value="울산광역시">울산광역시</option>
-                  <option value="강원도">강원도</option>
-                  <option value="충청북도">충청북도</option>
-                  <option value="충청남도">충청남도</option>
-                  <option value="전라북도">전라북도</option>
-                  <option value="전라남도">전라남도</option>
-                  <option value="경상북도">경상북도</option>
-                  <option value="경상남도">경상남도</option>
-                  <option value="제주특별자치도">제주특별자치도</option>
-                </select>
-              </div>
+                <form onSubmit={handleSignUpSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성함이 어떻게 되시나요?</label>
+                    <input 
+                      type="text" 
+                      value={signUpData.name} 
+                      onChange={(e) => setSignUpData({ ...signUpData, name: e.target.value })} 
+                      placeholder="이름 입력 (예: 홍길동)"
+                      className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">도움이 필요한 신체적 어려움(장애)이 있으신가요?</label>
-                <div className="flex gap-2 bg-[#EAE6DF] p-1 rounded-2xl">
-                  <button 
-                    onClick={() => setUserProfile({ ...userProfile, disabled: false })} 
-                    className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${!userProfile.disabled ? 'bg-white shadow' : 'text-gray-600'}`}
-                  >없음</button>
-                  <button 
-                    onClick={() => setUserProfile({ ...userProfile, disabled: true })} 
-                    className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${userProfile.disabled ? 'bg-white shadow' : 'text-gray-600'}`}
-                  >있음</button>
-                </div>
-              </div>
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성별</label>
+                      <div className="flex gap-1 bg-[#EAE6DF] p-1 rounded-2xl">
+                        <button 
+                          type="button"
+                          onClick={() => setSignUpData({ ...signUpData, gender: '남성' })} 
+                          className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${signUpData.gender === '남성' ? 'bg-white shadow' : 'text-gray-600'}`}
+                        >남성</button>
+                        <button 
+                          type="button"
+                          onClick={() => setSignUpData({ ...signUpData, gender: '여성' })} 
+                          className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${signUpData.gender === '여성' ? 'bg-white shadow' : 'text-gray-600'}`}
+                        >여성</button>
+                      </div>
+                    </div>
 
-              <div className="bg-[#EBF3ED] p-4 rounded-2xl flex items-center justify-between border border-[#C6DCCE]">
-                <div>
-                  <p className="text-xl font-bold text-[#2A3B2C] hand-font">음성 지원 모드</p>
-                  <p className="text-base text-gray-600 hand-font">복이가 글씨를 읽어드려요</p>
-                </div>
-                <button 
-                  onClick={() => {
-                    const nextVal = !userProfile.voiceSupport;
-                    setUserProfile({ ...userProfile, voiceSupport: nextVal });
-                    if (nextVal) speak("음성 지원 모드가 켜졌습니다.");
-                  }}
-                  className={`w-14 h-8 rounded-full p-1 transition-colors ${userProfile.voiceSupport ? 'bg-[#3B5E3C]' : 'bg-gray-300'}`}
-                >
-                  <div className={`w-6 h-6 bg-white rounded-full transform transition-transform ${userProfile.voiceSupport ? 'translate-x-6' : 'translate-x-0'}`}></div>
-                </button>
-              </div>
+                    <div className="flex-1">
+                      <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">나이</label>
+                      <input 
+                        type="number" 
+                        value={signUpData.age} 
+                        onChange={(e) => setSignUpData({ ...signUpData, age: e.target.value })} 
+                        placeholder="예: 72"
+                        className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                      />
+                    </div>
+                  </div>
 
-              <button onClick={() => { speak("프로필을 저장하고 맞춤 혜택을 추천받습니다."); onSave(); }} className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-4 flex items-center justify-center gap-2">
-                저장하고 추천 받기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      );
-    };
+                  <div>
+                    <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">어디에 살고 계신가요?</label>
+                    <select 
+                      value={signUpData.region} 
+                      onChange={(e) => setSignUpData({ ...signUpData, region: e.target.value })}
+                      className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                    >
+                      <option value="서울특별시">서울특별시</option>
+                      <option value="경기도">경기도</option>
+                      <option value="부산광역시">부산광역시</option>
+                      <option value="대구광역시">대구광역시</option>
+                      <option value="인천광역시">인천광역시</option>
+                      <option value="광주광역시">광주광역시</option>
+                      <option value="대전광역시">대전광역시</option>
+                      <option value="울산광역시">울산광역시</option>
+                      <option value="강원도">강원도</option>
+                      <option value="충청북도">충청북도</option>
+                      <option value="충청남도">충청남도</option>
+                      <option value="전라북도">전라북도</option>
+                      <option value="전라남도">전라남도</option>
+                      <option value="경상북도">경상북도</option>
+                      <option value="경상남도">경상남도</option>
+                      <option value="제주특별자치도">제주특별자치도</option>
+                    </select>
+                  </div>
 
-    // 찾아보기 화면
-    const BrowseScreen = ({ userProfile, onOpenChat }) => {
-      const [policies, setPolicies] = useState([]);
-      const [loading, setLoading] = useState(false);
-      const [selectedPolicy, setSelectedPolicy] = useState(null);
+                  <button type="submit" className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-4">
+                    가입하고 맞춤 안내받기
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
 
-      useEffect(() => {
-        fetchRecommendedPolicies();
-      }, [userProfile]);
+    // 프로필 화면
+    const ProfileScreen = ({ userProfile, setUserProfile, onSave }) => {
+      const speak = (text) => {
+        if (userProfile.voiceSupport && 'speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'ko-KR';
+          window.speechSynthesis.speak(utterance);
+        }
+      };
 
-      const fetchRecommendedPolicies = async () => {
-        setLoading(true);
-        try {
-          const prompt = `사용자 프로필: Name: ${userProfile.name}, Age: ${userProfile.age}, Gender: ${userProfile.gender}, Region: ${userProfile.region}, Disabled: ${userProfile.disabled ? '예' : '아니오'}. 
-          이 어르신에게 맞는 맞춤형 복지 정책 4개를 추천해주세요. JSON 배열 형식으로만 응답하세요. 다른 설명 텍스트는 제외하세요.
-          형식:
-          [
-            {
-              "id": 1,
-              "tag": "마감 임박",
-              "title": "기초연금 정기 지급 안내",
-              "shortDesc": "매월 최대 33만원의 생활비를 지원받으실 수 있습니다.",
-              "org": "보건복지부",
-              "eligibility": "만 65세 이상 및 소득인정액 기준 하위 70%",
-              "period": "상시 신청 가능"
-            }
-          ]`;
+      return (
+        <div className="flex-1 flex flex-col pb-24">
+          <Header title="프로필" />
+          <div className="p-5 space-y-5 overflow-y-auto">
+            <div className="flex flex-col items-center">
+              <BokiAvatar className="w-24 h-24 mb-3" />
+              <div className="bg-[#EAE6DF] p-4 rounded-2xl border border-[#D5CFC0] text-center w-full">
+                <p className="text-xl text-[#2A3B2C] hand-font">"안녕하세요! 저는 복이라고 해요. 어르신께 꼭 맞는 소식을 찾아드릴게요. 정보를 알려주시겠어요?"</p>
+              </div>
+            </div>
 
-          const res = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt })
-          });
-          const data = await res.json();
-          let jsonText = data.text.trim();
-          if (jsonText.startsWith('```json')) {
-            jsonText = jsonText.replace(/^```json/, '').replace(/```$/, '').trim();
-          } else if (jsonText.startsWith('```')) {
-            jsonText = jsonText.replace(/^```/, '').replace(/```$/, '').trim();
-          }
-          const parsed = JSON.parse(jsonText);
-          setPolicies(parsed);
-        } catch (e) {
-          // 실패 시 기본 데이터
-          setPolicies([
-            { id: 1, tag: "마감 임박", title: "기초연금 정기 지급 안내", shortDesc: "매월 최대 33.4만원의 생활비를 지원받으실 수 있습니다.", org: "보건복지부 및 주민센터", eligibility: "만 65세 이상 어르신 중 소득인정액 이하", period: "12월 31일까지" },
-            { id: 2, tag: "신규 혜택", title: "노인 무료 인공관절 수술비 지원", shortDesc: "수술비 본인 부담금 중 최대 120만원까지 지원해요.", org: "거주지 인근 보건소", eligibility: "만 60세 이상 저소득층 어르신", period: "예산 소진 시까지" },
-            { id: 3, tag: "인기", title: "어르신 일자리 사업 참여", shortDesc: "가까운 복지관에서 가벼운 일거리를 찾아보세요.", org: "시/군/구 노인복지관", eligibility: "만 60~65세 이상 구직 희망 어르신", period: "상시 모집" }
-          ]);
-        } finally {
-          setLoading(false);
-        }
-      };
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성함이 어떻게 되시나요?</label>
+                <input 
+                  type="text" 
+                  value={userProfile.name} 
+                  onChange={(e) => setUserProfile({ ...userProfile, name: e.target.value })} 
+                  placeholder="이름을 입력해주세요"
+                  className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                />
+              </div>
 
-      return (
-        <div className="flex-1 flex flex-col pb-24">
-          <Header title="찾아보기" />
-          <div className="p-5 space-y-5 overflow-y-auto">
-            {/* 상단 혜택 가이드 카드 */}
-            <div className="bg-[#789975] text-white p-6 rounded-3xl relative overflow-hidden shadow-sm">
-              <span className="bg-white/20 text-white text-sm px-3 py-1 rounded-full hand-font">복이 인공지능 추천</span>
-              <h2 className="text-3xl font-bold hand-font mt-2 mb-1">어르신에게 딱 맞는<br/>혜택을 찾아왔어요!</h2>
-              <p className="text-lg hand-font opacity-90">{userProfile.name} 어르신의 조건에 맞춰 선별한 소식이에요.</p>
-            </div>
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">성별</label>
+                  <div className="flex gap-2 bg-[#EAE6DF] p-1 rounded-2xl">
+                    <button 
+                      onClick={() => setUserProfile({ ...userProfile, gender: '남성' })} 
+                      className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${userProfile.gender === '남성' ? 'bg-white shadow' : 'text-gray-600'}`}
+                    >남성</button>
+                    <button 
+                      onClick={() => setUserProfile({ ...userProfile, gender: '여성' })} 
+                      className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${userProfile.gender === '여성' ? 'bg-white shadow' : 'text-gray-600'}`}
+                    >여성</button>
+                  </div>
+                </div>
 
-            {/* 맞춤 혜택 리스트 */}
-            <div>
-              <div className="flex justify-between items-center mb-3">
-                <h3 className="text-2xl font-bold text-[#2A3B2C] hand-font">맞춤 혜택 리스트</h3>
-              </div>
+                <div className="flex-1">
+                  <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">나이</label>
+                  <input 
+                    type="number" 
+                    value={userProfile.age} 
+                    onChange={(e) => setUserProfile({ ...userProfile, age: e.target.value })} 
+                    placeholder="예: 72"
+                    className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                  />
+                </div>
+              </div>
 
-              {loading ? (
-                <div className="p-8 text-center text-xl hand-font text-gray-500">복이가 어르신을 위한 혜택을 찾고 있어요...</div>
-              ) : (
-                <div className="space-y-3">
-                  {policies.map((p) => (
-                    <div key={p.id} onClick={() => setSelectedPolicy(p)} className="bg-white p-4 rounded-2xl border border-[#EAE6DF] shadow-sm cursor-pointer hover:border-[#3B5E3C] transition-all">
-                      {p.tag && (
-                        <span className="inline-block bg-[#E5EBE3] text-[#3B5E3C] text-sm px-2.5 py-0.5 rounded-full hand-font font-bold mb-2">
-                          {p.tag}
-                        </span>
-                      )}
-                      <h4 className="text-2xl font-bold text-[#2A3B2C] hand-font mb-1">{p.title}</h4>
-                      <p className="text-lg text-gray-600 hand-font mb-2">{p.shortDesc}</p>
-                      <div className="text-base text-[#8C6D3B] hand-font flex items-center gap-1">
-                        <i data-lucide="info" className="w-4 h-4"></i> 자세히 알아보기
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+              <div>
+                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">어디에 살고 계신가요?</label>
+                <select 
+                  value={userProfile.region} 
+                  onChange={(e) => setUserProfile({ ...userProfile, region: e.target.value })}
+                  className="w-full p-3 border border-gray-300 rounded-2xl text-xl hand-font bg-white focus:outline-none focus:border-[#3B5E3C]"
+                >
+                  <option value="서울특별시">서울특별시</option>
+                  <option value="경기도">경기도</option>
+                  <option value="부산광역시">부산광역시</option>
+                  <option value="대구광역시">대구광역시</option>
+                  <option value="인천광역시">인천광역시</option>
+                  <option value="광주광역시">광주광역시</option>
+                  <option value="대전광역시">대전광역시</option>
+                  <option value="울산광역시">울산광역시</option>
+                  <option value="강원도">강원도</option>
+                  <option value="충청북도">충청북도</option>
+                  <option value="충청남도">충청남도</option>
+                  <option value="전라북도">전라북도</option>
+                  <option value="전라남도">전라남도</option>
+                  <option value="경상북도">경상북도</option>
+                  <option value="경상남도">경상남도</option>
+                  <option value="제주특별자치도">제주특별자치도</option>
+                </select>
+              </div>
 
-            {/* 하단 대화 유도 버튼 */}
-            <div className="bg-[#EAE6DF] p-5 rounded-3xl text-center space-y-3">
-              <p className="text-xl font-bold text-[#2A3B2C] hand-font">더 많은 혜택이 궁금하신가요?</p>
-              <button onClick={onOpenChat} className="w-full py-3.5 bg-[#8C6D3B] text-white rounded-2xl text-2xl font-bold hand-font flex items-center justify-center gap-2 shadow-md">
-                <i data-lucide="mic" className="w-6 h-6"></i> 복이에게 물어보기
-              </button>
-            </div>
-          </div>
+              <div>
+                <label className="block text-gray-700 font-bold mb-1 hand-font text-xl">도움이 필요한 신체적 어려움(장애)이 있으신가요?</label>
+                <div className="flex gap-2 bg-[#EAE6DF] p-1 rounded-2xl">
+                  <button 
+                    onClick={() => setUserProfile({ ...userProfile, disabled: false })} 
+                    className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${!userProfile.disabled ? 'bg-white shadow' : 'text-gray-600'}`}
+                  >없음</button>
+                  <button 
+                    onClick={() => setUserProfile({ ...userProfile, disabled: true })} 
+                    className={`flex-1 py-2 rounded-xl text-lg hand-font font-bold ${userProfile.disabled ? 'bg-white shadow' : 'text-gray-600'}`}
+                  >있음</button>
+                </div>
+              </div>
 
-          {/* 정책 상세보기 모달 */}
-          {selectedPolicy && (
-            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-              <div className="bg-[#FAF8F5] w-full max-w-[390px] rounded-3xl p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-                <div className="flex justify-between items-start">
-                  <h3 className="text-3xl font-bold text-[#2A3B2C] hand-font">{selectedPolicy.title}</h3>
-                  <button onClick={() => setSelectedPolicy(null)} className="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" className="w-7 h-7"></i>
-                  </button>
-                </div>
-                <p className="text-xl text-gray-700 hand-font">{selectedPolicy.shortDesc}</p>
-                <hr className="border-[#EAE6DF]" />
-                <div className="space-y-3 hand-font text-xl">
-                  <div>
-                    <span className="font-bold text-[#3B5E3C]">주관 기관: </span>
-                    <span>{selectedPolicy.org || '보건복지부'}</span>
-                  </div>
-                  <div>
-                    <span className="font-bold text-[#3B5E3C]">자격 요건: </span>
-                    <span>{selectedPolicy.eligibility || '주소지 거주 어르신'}</span>
-                  </div>
-                  <div>
-                    <span className="font-bold text-[#3B5E3C]">신청 기간: </span>
-                    <span>{selectedPolicy.period || '상시'}</span>
-                  </div>
-                </div>
-                <div className="pt-2">
-                  <button 
-                    onClick={() => {
-                      alert('신청 화면으로 연결됩니다.');
-                      setSelectedPolicy(null);
-                    }}
-                    className="w-full py-3.5 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md"
-                  >
-                    바로 신청하기
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    };
+              <div className="bg-[#EBF3ED] p-4 rounded-2xl flex items-center justify-between border border-[#C6DCCE]">
+                <div>
+                  <p className="text-xl font-bold text-[#2A3B2C] hand-font">음성 지원 모드</p>
+                  <p className="text-base text-gray-600 hand-font">복이가 글씨를 읽어드려요</p>
+                </div>
+                <button 
+                  onClick={() => {
+                    const nextVal = !userProfile.voiceSupport;
+                    setUserProfile({ ...userProfile, voiceSupport: nextVal });
+                    if (nextVal) speak("음성 지원 모드가 켜졌습니다.");
+                  }}
+                  className={`w-14 h-8 rounded-full p-1 transition-colors ${userProfile.voiceSupport ? 'bg-[#3B5E3C]' : 'bg-gray-300'}`}
+                >
+                  <div className={`w-6 h-6 bg-white rounded-full transform transition-transform ${userProfile.voiceSupport ? 'translate-x-6' : 'translate-x-0'}`}></div>
+                </button>
+              </div>
 
-    // 대화하기 화면
-    const ChatScreen = ({ userProfile }) => {
-      const [messages, setMessages] = useState([
-        { 
-          sender: 'boki', 
-          text: `안녕하세요 ${userProfile.name} 어르신! 손주 복이에요. 구체적인 이름을 몰라도 생각나시는 대로 편하게 말씀해주시면 찾아드릴게요!` 
-        }
-      ]);
-      const [input, setInput] = useState('');
-      const [loading, setLoading] = useState(false);
-      const [applicationForm, setApplicationForm] = useState(null);
-      const messagesEndRef = useRef(null);
+              <button onClick={() => { speak("프로필을 저장하고 맞춤 혜택을 추천받습니다."); onSave(); }} className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md mt-4 flex items-center justify-center gap-2">
+                저장하고 추천 받기 <i data-lucide="arrow-right" className="w-6 h-6"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    };
 
-      const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-      };
+    // 찾아보기 화면
+    const BrowseScreen = ({ userProfile, onOpenChat }) => {
+      const [policies, setPolicies] = useState([]);
+      const [loading, setLoading] = useState(false);
+      const [selectedPolicy, setSelectedPolicy] = useState(null);
 
-      useEffect(() => {
-        scrollToBottom();
-      }, [messages, loading]);
+      useEffect(() => {
+        fetchRecommendedPolicies();
+      }, [userProfile]);
 
-      const handleSend = async () => {
-        if (!input.trim() || loading) return;
-        const userMsg = input;
-        setInput('');
-        setMessages(prev => [...prev, { sender: 'user', text: userMsg }]);
-        setLoading(true);
+      const fetchRecommendedPolicies = async () => {
+        setLoading(true);
+        try {
+          const prompt = `사용자 프로필: Name: ${userProfile.name}, Age: ${userProfile.age}, Gender: ${userProfile.gender}, Region: ${userProfile.region}, Disabled: ${userProfile.disabled ? '예' : '아니오'}. 
+          이 어르신에게 맞는 맞춤형 복지 정책 4개를 추천해주세요. JSON 배열 형식으로만 응답하세요. 다른 설명 텍스트는 제외하세요.
+          형식:
+          [
+            {
+              "id": 1,
+              "tag": "마감 임박",
+              "title": "기초연금 정기 지급 안내",
+              "shortDesc": "매월 최대 33만원의 생활비를 지원받으실 수 있습니다.",
+              "org": "보건복지부",
+              "eligibility": "만 65세 이상 및 소득인정액 기준 하위 70%",
+              "period": "상시 신청 가능"
+            }
+          ]`;
 
-        try {
-          const prompt = `너는 어르신을 돕는 친절한 손주 같은 AI 지원 어시스트 '복이'야. 절대 '멍멍' 같은 소리는 쓰지마.
-          어르신이 '아 그 왜 바퀴 달리고 막 가고 하는 거 있잖아' 처럼 모호하게 말해도 친절하게 공감하며 어떤 제품이나 정책(예: 전동휠체어, 실버카, 노인 보행보조기 지원 등)을 말하는 것인지 파악해서 '아! 00 말씀이시군요! 그거는 ~~ 이런 정책이 있어서 지원돼요' 형태로 다정하게 답해줘.
-          또한 답변 끝에 만약 신청서 생성이 필요하다고 판단되면 [APPLY: 정책명] 형식으로 태그를 달아줘.
-          어르신 정보: 이름 ${userProfile.name}, 나이 ${userProfile.age}, 지역 ${userProfile.region}.
-          어르신의 질문: "${userMsg}"`;
-
-          const res = await fetch('/api/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ prompt })
-          });
-          const data = await res.json();
-          let replyText = data.text || "죄송해요 어르신, 다시 한번 말씀해주시겠어요?";
-          
-          let hasApply = false;
-          let policyName = "";
-          if (replyText.includes('[APPLY:')) {
-            const match = replyText.match(/\[APPLY:\s*(.*?)\]/);
-            if (match) {
-              policyName = match[1];
-              replyText = replyText.replace(/\[APPLY:\s*.*?\]/, '').trim();
-              hasApply = true;
-            }
-          }
-
-          setMessages(prev => [
-            ...prev, 
-            { 
-              sender: 'boki', 
-              text: replyText,
-              showFormBtn: hasApply,
-              policyName: policyName || "보행 보조기구 지원사업"
-            }
-          ]);
-        } catch (e) {
-          setMessages(prev => [...prev, { sender: 'boki', text: "어르신, 잠시 연결이 불안정해요. 다시 말씀해 주시겠어요?" }]);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      return (
-        <div className="flex-1 flex flex-col h-screen pb-24">
-          <Header title="Chat" />
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            <div className="text-center my-2">
-              <span className="bg-[#EAE6DF] text-gray-600 text-lg px-4 py-1 rounded-full hand-font">
-                오늘대화
-              </span>
-            </div>
-
-            {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'} gap-2`}>
-                {m.sender === 'boki' && <BokiAvatar className="w-10 h-10 flex-shrink-0" />}
-                <div className={`p-4 rounded-3xl text-xl hand-font max-w-[80%] ${m.sender === 'user' ? 'bg-[#789975] text-white rounded-tr-none' : 'bg-white text-gray-800 border border-[#EAE6DF] rounded-tl-none shadow-sm'}`}>
-                  <p className="whitespace-pre-line leading-relaxed">{m.text}</p>
-                  
-                  {m.showFormBtn && (
-                    <div className="mt-4 pt-3 border-t border-gray-100">
-                      <button 
-                        onClick={() => setApplicationForm({ policyName: m.policyName })}
-                        className="w-full py-3 bg-[#8C6D3B] text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-sm"
-                      >
-                        <i data-lucide="file-text" className="w-5 h-5"></i> 신청 서류 작성하기
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            {loading && (
-              <div className="flex justify-start gap-2">
-                <BokiAvatar className="w-10 h-10 flex-shrink-0" />
-                <div className="bg-white p-4 rounded-3xl text-xl hand-font border border-[#EAE6DF] text-gray-500">
-                  복이가 생각 중이에요...
-                </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* 입력 창 */}
-          <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[430px] p-3 bg-[#FAF8F5] border-t border-[#EAE6DF]">
-            <div className="flex gap-2 items-center bg-white p-2 rounded-full border border-[#D5CFC0] shadow-sm">
-              <input 
-                type="text" 
-                value={input} 
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                placeholder="복이에게 편하게 말씀하세요..." 
-                className="flex-1 px-4 text-xl hand-font focus:outline-none bg-transparent"
-              />
-              <button 
-                onClick={handleSend}
-                className="w-12 h-12 bg-[#3B5E3C] text-white rounded-full flex items-center justify-center font-bold flex-shrink-0"
-              >
-                <i data-lucide="send" className="w-5 h-5"></i>
-              </button>
-            </div>
-          </div>
-
-          {/* 신청서 모달 */}
-          {applicationForm && (
-            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-              <div className="bg-[#FAF8F5] w-full max-w-[390px] rounded-3xl p-6 space-y-4 max-h-[85vh] overflow-y-auto">
-                <div className="flex justify-between items-start">
-                  <h3 className="text-3xl font-bold text-[#2A3B2C] hand-font">자동 작성된 신청서</h3>
-                  <button onClick={() => setApplicationForm(null)} className="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" className="w-7 h-7"></i>
-                  </button>
-                </div>
-
-                <div className="bg-white p-4 rounded-2xl border border-[#EAE6DF] space-y-3 hand-font text-xl">
-                  <div><span className="text-gray-500">신청 지원명:</span> <p className="font-bold text-[#3B5E3C]">{applicationForm.policyName}</p></div>
-                  <div><span className="text-gray-500">신청자 성함:</span> <p className="font-bold">{userProfile.name}</p></div>
-                  <div><span className="text-gray-500">연락처/나이:</span> <p className="font-bold">{userProfile.age}세</p></div>
-                  <div><span className="text-gray-500">거주지역:</span> <p className="font-bold">{userProfile.region}</p></div>
-                  <div><span className="text-gray-500">특이사항:</span> <p className="font-bold">{userProfile.disabled ? '신체적 불편함(장애) 있음' : '없음'}</p></div>
-                </div>
-
-                <p className="text-lg text-gray-600 hand-font text-center">복이가 어르신의 프로필 정보를 바탕으로 신청서를 준비해두었습니다.</p>
-
-                <button 
-                  onClick={() => {
-                    alert('신청서 제출이 완료되었습니다! 복이가 접수 현황을 알려드릴게요.');
-                    setApplicationForm(null);
-                  }}
-                  className="w-full py-4 bg-[#3B5E3C] text-white rounded-2xl text-2xl font-bold hand-font shadow-md"
-                >
-                  제출 완료하기
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    };
-
-    const App = () => {
-      const [started, setStarted] = useState(false);
-      const [activeTab, setActiveTab] = useState('browse');
-      const [userProfile, setUserProfile] = useState({
-        name: '김복순',
-        age: '72',
-        gender: '여성',
-        region: '서울특별시',
-        disabled: false,
-        voiceSupport: true
-      });
-
-      if (!started) {
-        return <SplashScreen onStart={() => setStarted(true)} />;
-      }
-
-      return (
-        <div className="flex-1 flex flex-col">
-          {activeTab === 'profile' && (
-            <ProfileScreen 
-              userProfile={userProfile} 
-              setUserProfile={setUserProfile} 
-              onSave={() => setActiveTab('browse')} 
-            />
-          )}
-          {activeTab === 'browse' && (
-            <BrowseScreen 
-              userProfile={userProfile} 
-              onOpenChat={() => setActiveTab('chat')} 
-            />
-          )}
-          {activeTab === 'chat' && (
-            <ChatScreen userProfile={userProfile} />
-          )}
-          <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
-        </div>
-      );
-    };
-
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-  </script>
-</body>
-</html>
+          const res = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt })
+          });
+          const data = await res.json();
+          let jsonText = data.text.trim();
+          if (jsonText.startsWith('```json')) {
+            jsonText = jsonText.replace(/^
